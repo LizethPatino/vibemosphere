@@ -1,0 +1,27 @@
+{
+  "name": "vibemosphere",
+  "version": "1.0.0",
+  "private": true,
+  "description": "An AI-powered sensory scrapbook that transforms images into atmospheric experiences through curated color palettes, literary quotes, and musical vibes. Built with React, Node.js, and Multimodal LLMs.",
+  "main": "index.js",
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+  "server": "npm run dev -w packages/server",
+  "client": "npm run dev -w packages/client",
+  "dev": "npm run dev --workspaces --if-present"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/LizethPatino/vibemosphere.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/LizethPatino/vibemosphere/issues"
+  },
+  "homepage": "https://github.com/LizethPatino/vibemosphere#readme"
+}
