@@ -41,30 +41,77 @@ function App() {
   };
 
   return (
-    <div style={{ padding: '2rem', textAlign: 'center', fontFamily: 'sans-serif' }}>
-      <h1>Vibemosphere 📸</h1>
-      
-      <input type="file" accept="image/*" onChange={handleImageChange} />
-      
-      {image && (
-        <div style={{ marginTop: '1rem' }}>
-          <img src={image} alt="Preview" style={{ maxWidth: '300px', borderRadius: '8px' }} />
-          <br />
-          <button onClick={analyzeVibe} disabled={loading} style={{ marginTop: '1rem' }}>
-            {loading ? 'Analizando vibra...' : 'Generar Estampilla'}
-          </button>
-        </div>
-      )}
+    <div className="journal-shell">
+      <div className="journal-page">
+        <h1>Vibemosphere</h1>
 
-      {result && (
-        <div style={{ marginTop: '2rem', border: `2px solid ${result.hexColor}`, padding: '1rem', borderRadius: '12px' }}>
-          <h2 style={{ color: result.hexColor }}>{result.vibe.label}</h2>
-          <p><i>"{result.quote.text}"</i></p>
-          <p>— {result.quote.author} ({result.quote.source})</p>
-          <hr />
-          <p><strong>Búsqueda musical:</strong> {result.musicSearchQuery}</p>
+        <div className="polaroid-wrap polaroid-wrap--layered">
+          <div className="polaroid">
+            <label className="polaroid__photo" htmlFor="polaroid-upload">
+              <input
+                id="polaroid-upload"
+                className="polaroid__file"
+                type="file"
+                accept="image/*"
+                onChange={handleImageChange}
+              />
+              {image ? (
+                <img className="polaroid__img" src={image} alt="Vista previa de tu dibujo" />
+              ) : (
+                <div className="polaroid__placeholder">
+                  <span className="polaroid__placeholder-label">Tape your drawing here</span>
+                </div>
+              )}
+            </label>
+            <div className="polaroid__chin" aria-hidden="true">
+              <span className="polaroid__ctrl">⏮</span>
+              <span className="polaroid__ctrl">⏸</span>
+              <span className="polaroid__ctrl">⏭</span>
+            </div>
+          </div>
         </div>
-      )}
+
+        {image && (
+          <div className="polaroid-actions">
+            <button
+              type="button"
+              className="polaroid-submit"
+              onClick={analyzeVibe}
+              disabled={loading}
+            >
+              {loading ? 'Analizando vibra...' : 'Generar Estampilla'}
+            </button>
+          </div>
+        )}
+
+        {result && (
+          <div className="result-layer-stack">
+            <div className="polaroid-wrap polaroid-wrap--result polaroid-wrap--layered">
+              <div className="polaroid polaroid--result">
+                <div className="polaroid__photo polaroid__photo--static polaroid__photo--fluid">
+                  <div className="vibe-result vibe-result--in-polaroid">
+                    <h2>{result.vibe.label}</h2>
+                    <p>
+                      <i>{`"${result.quote.text}"`}</i>
+                    </p>
+                    <p>— {result.quote.author} ({result.quote.source})</p>
+                    <hr />
+                  </div>
+                </div>
+                <div className="polaroid__chin" aria-hidden="true">
+                  <span className="polaroid__ctrl">⏮</span>
+                  <span className="polaroid__ctrl">⏸</span>
+                  <span className="polaroid__ctrl">⏭</span>
+                </div>
+              </div>
+            </div>
+            <div className="music-scrap">
+              <span className="music-scrap__kicker">Búsqueda musical</span>
+              <p className="music-scrap__query">{result.musicSearchQuery}</p>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   )
 }
