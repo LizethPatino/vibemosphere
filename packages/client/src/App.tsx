@@ -48,7 +48,7 @@ function App() {
         <h1 className="journal-title">Vibemosphere</h1>
 
         <div
-          className="color-scrap"
+          className="color-scrap-paper"
           style={{ backgroundImage: `url(${colorTexture})` }}
           aria-hidden
         />
@@ -123,7 +123,7 @@ function App() {
         )}
 
         <div
-          className="music-scrap"
+          className="music-scrap-paper"
           style={{ backgroundImage: `url(${musicTexture})` }}
           aria-hidden
         />

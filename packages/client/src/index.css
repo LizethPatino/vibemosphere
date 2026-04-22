@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Playwrite+CU:wght@100..400&family=Quicksand:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;1,400&family=Playwrite+CU:wght@100..400&family=Quicksand:wght@300;400;500;600;700&display=swap');
 
 :root {
   --text: #6b6375;
@@ -101,7 +101,7 @@ body {
   overflow: visible;
 }
 
-.color-scrap {
+.color-scrap-paper {
   position: absolute;
   z-index: 1;
   width: 112px;
@@ -115,6 +115,8 @@ body {
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.14);
   transform: rotate(-4.5deg);
   pointer-events: none;
+  mix-blend-mode: multiply;
+  opacity: 0.9;
 }
 
 .polaroid-scene {
@@ -126,7 +128,7 @@ body {
   margin-right: auto;
 }
 
-.music-scrap {
+.music-scrap-paper {
   position: absolute;
   z-index: 1;
   width: 156px;
@@ -140,6 +142,8 @@ body {
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
   transform: rotate(-6deg);
   pointer-events: none;
+  mix-blend-mode: multiply;
+  opacity: 0.9;
 }
 
 h1,
@@ -443,17 +447,15 @@ h1 {
   margin: 20px auto 50px;
   padding: 0;
   text-align: center;
-  font-family: var(--sans);
-  font-size: 2rem;
+  font-family: 'Lora', serif;
+  font-size: 2.2rem;
   font-weight: 400;
+  font-style: italic;
   line-height: 1.25;
-  letter-spacing: 3px;
-  color: #6d6861;
-  opacity: 0.8;
+  color: #55514c;
 
   @media (max-width: 1024px) {
-    font-size: 1.55rem;
-    letter-spacing: 2px;
+    font-size: 1.65rem;
   }
 }
 
