@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500&family=Playwrite+CU:wght@100..400&family=Quicksand:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Playwrite+CU:wght@100..400&family=Quicksand:wght@300;400;500;600;700&display=swap');
 
 :root {
   --text: #6b6375;
@@ -15,7 +15,6 @@
 
   --sans: 'Quicksand', system-ui, 'Segoe UI', sans-serif;
   --heading: 'Playwrite CU', cursive;
-  --journal-title-font: 'Outfit', 'Quicksand', system-ui, sans-serif;
   --mono: ui-monospace, Consolas, monospace;
 
   font: 18px/145% var(--sans);
@@ -102,29 +101,20 @@ body {
   overflow: visible;
 }
 
-.color-scrap-sticker {
+.color-scrap {
   position: absolute;
   z-index: 1;
-  width: 86px;
-  height: 86px;
+  width: 112px;
+  height: 104px;
+  top: clamp(96px, 17vh, 200px);
+  left: clamp(10px, calc(50% - 198px), 22%);
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  border-radius: 5px 15px 8px 10px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  border-radius: 6px 18px 9px 15px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.14);
+  transform: rotate(-4.5deg);
   pointer-events: none;
-}
-
-.color-scrap-sticker--tl {
-  top: 20px;
-  left: 14px;
-  transform: rotate(-2deg);
-}
-
-.color-scrap-sticker--br {
-  bottom: 28px;
-  right: 16px;
-  transform: rotate(4deg);
 }
 
 .polaroid-scene {
@@ -136,20 +126,19 @@ body {
   margin-right: auto;
 }
 
-.music-scrap-sticker {
+.music-scrap {
   position: absolute;
-  z-index: 2;
-  width: 128px;
-  height: 96px;
-  top: 6px;
-  right: -6px;
+  z-index: 1;
+  width: 156px;
+  height: 118px;
+  bottom: 36px;
+  right: clamp(14px, 7%, 36px);
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  border-radius: 6px 12px 5px 9px;
-  opacity: 0.94;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
-  transform: rotate(7deg);
+  border-radius: 5px 20px 10px 25px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  transform: rotate(-6deg);
   pointer-events: none;
 }
 
@@ -185,7 +174,7 @@ h2 {
   padding-bottom: 1.25rem;
 }
 
-.music-scrap {
+.music-query-card {
   position: relative;
   z-index: 5;
   box-sizing: border-box;
@@ -194,37 +183,15 @@ h2 {
   padding: 0.72rem 1.05rem 0.88rem;
   background: #d2b48c;
   transform: rotate(-4.2deg);
-  filter: drop-shadow(0 6px 16px rgba(0, 0, 0, 0.24))
-    drop-shadow(0 1px 4px rgba(0, 0, 0, 0.12));
+  box-shadow:
+    0 4px 14px rgba(0, 0, 0, 0.18),
+    0 1px 4px rgba(0, 0, 0, 0.1);
   font-family: var(--sans);
   color: rgba(34, 28, 22, 0.92);
-  clip-path: polygon(
-    5% 9%,
-    16% 0%,
-    30% 7%,
-    46% 1%,
-    64% 8%,
-    84% 0%,
-    97% 11%,
-    100% 30%,
-    93% 44%,
-    100% 60%,
-    96% 78%,
-    100% 94%,
-    84% 100%,
-    66% 96%,
-    46% 100%,
-    28% 96%,
-    12% 100%,
-    0% 90%,
-    4% 74%,
-    0% 54%,
-    5% 36%,
-    0% 20%
-  );
+  border-radius: 5px 18px 10px 22px;
 }
 
-.music-scrap__kicker {
+.music-query-card__kicker {
   display: block;
   font-size: 0.62rem;
   font-weight: 700;
@@ -233,7 +200,7 @@ h2 {
   opacity: 0.82;
 }
 
-.music-scrap__query {
+.music-query-card__query {
   margin: 0.42rem 0 0;
   font-size: 0.9rem;
   font-weight: 600;
@@ -473,17 +440,20 @@ h1 {
   z-index: 4;
   width: fit-content;
   max-width: 100%;
-  margin: 20px auto 40px;
+  margin: 20px auto 50px;
   padding: 0;
   text-align: center;
-  font-family: var(--journal-title-font);
+  font-family: var(--sans);
   font-size: 2rem;
-  font-weight: 300;
+  font-weight: 400;
   line-height: 1.25;
-  color: #55514c;
+  letter-spacing: 3px;
+  color: #6d6861;
+  opacity: 0.8;
 
   @media (max-width: 1024px) {
     font-size: 1.55rem;
+    letter-spacing: 2px;
   }
 }
 

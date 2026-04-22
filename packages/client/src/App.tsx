@@ -48,22 +48,12 @@ function App() {
         <h1 className="journal-title">Vibemosphere</h1>
 
         <div
-          className="color-scrap-sticker color-scrap-sticker--tl"
-          style={{ backgroundImage: `url(${colorTexture})` }}
-          aria-hidden
-        />
-        <div
-          className="color-scrap-sticker color-scrap-sticker--br"
+          className="color-scrap"
           style={{ backgroundImage: `url(${colorTexture})` }}
           aria-hidden
         />
 
         <div className="polaroid-scene">
-          <div
-            className="music-scrap-sticker"
-            style={{ backgroundImage: `url(${musicTexture})` }}
-            aria-hidden
-          />
           <div className="polaroid-wrap polaroid-wrap--layered">
             <div className="polaroid">
               <label className="polaroid__photo" htmlFor="polaroid-upload">
@@ -125,12 +115,18 @@ function App() {
                 </div>
               </div>
             </div>
-            <div className="music-scrap">
-              <span className="music-scrap__kicker">Búsqueda musical</span>
-              <p className="music-scrap__query">{result.musicSearchQuery}</p>
+            <div className="music-query-card">
+              <span className="music-query-card__kicker">Búsqueda musical</span>
+              <p className="music-query-card__query">{result.musicSearchQuery}</p>
             </div>
           </div>
         )}
+
+        <div
+          className="music-scrap"
+          style={{ backgroundImage: `url(${musicTexture})` }}
+          aria-hidden
+        />
       </div>
     </div>
   )
