@@ -1,5 +1,7 @@
 import { useState } from 'react'
 import type { MoodResponse } from '@vibemosphere/shared';
+import musicTexture from './assets/music-texture.png';
+import colorTexture from './assets/color-texture.png';
 
 function App() {
   const [image, setImage] = useState<string | null>(null);
@@ -43,30 +45,48 @@ function App() {
   return (
     <div className="journal-shell">
       <div className="journal-page">
-        <h1>Vibemosphere</h1>
+        <div
+          className="color-scrap-sticker color-scrap-sticker--tl"
+          style={{ backgroundImage: `url(${colorTexture})` }}
+          aria-hidden
+        />
+        <div
+          className="color-scrap-sticker color-scrap-sticker--br"
+          style={{ backgroundImage: `url(${colorTexture})` }}
+          aria-hidden
+        />
 
-        <div className="polaroid-wrap polaroid-wrap--layered">
-          <div className="polaroid">
-            <label className="polaroid__photo" htmlFor="polaroid-upload">
-              <input
-                id="polaroid-upload"
-                className="polaroid__file"
-                type="file"
-                accept="image/*"
-                onChange={handleImageChange}
-              />
-              {image ? (
-                <img className="polaroid__img" src={image} alt="Vista previa de tu dibujo" />
-              ) : (
-                <div className="polaroid__placeholder">
-                  <span className="polaroid__placeholder-label">Tape your drawing here</span>
-                </div>
-              )}
-            </label>
-            <div className="polaroid__chin" aria-hidden="true">
-              <span className="polaroid__ctrl">⏮</span>
-              <span className="polaroid__ctrl">⏸</span>
-              <span className="polaroid__ctrl">⏭</span>
+        <h1 className="journal-title">Vibemosphere</h1>
+
+        <div className="polaroid-scene">
+          <div
+            className="music-scrap-sticker"
+            style={{ backgroundImage: `url(${musicTexture})` }}
+            aria-hidden
+          />
+          <div className="polaroid-wrap polaroid-wrap--layered">
+            <div className="polaroid">
+              <label className="polaroid__photo" htmlFor="polaroid-upload">
+                <input
+                  id="polaroid-upload"
+                  className="polaroid__file"
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageChange}
+                />
+                {image ? (
+                  <img className="polaroid__img" src={image} alt="Vista previa de tu dibujo" />
+                ) : (
+                  <div className="polaroid__placeholder">
+                    <span className="polaroid__placeholder-label">Tape your drawing here</span>
+                  </div>
+                )}
+              </label>
+              <div className="polaroid__chin" aria-hidden="true">
+                <span className="polaroid__ctrl">⏮</span>
+                <span className="polaroid__ctrl">⏸</span>
+                <span className="polaroid__ctrl">⏭</span>
+              </div>
             </div>
           </div>
         </div>
