@@ -3,6 +3,16 @@ import type { MoodResponse } from '@vibemosphere/shared';
 import musicTexture from './assets/music-texture.png';
 import nightTexture from './assets/night-texture.png';
 
+function formatJournalDate(now: Date) {
+  const dd = String(now.getDate()).padStart(2, '0');
+  const mm = String(now.getMonth() + 1).padStart(2, '0');
+  const yyyy = String(now.getFullYear());
+  const iso = `${yyyy}-${mm}-${dd}`;
+  const dmy = `${dd}/${mm}/${yyyy}`;
+  const weekday = new Intl.DateTimeFormat('es-ES', { weekday: 'long' }).format(now);
+  return { iso, dmy, weekday };
+}
+
 function App() {
   const [image, setImage] = useState<string | null>(null);
   const [result, setResult] = useState<MoodResponse | null>(null);
@@ -42,10 +52,16 @@ function App() {
     }
   };
 
+  const { iso, dmy, weekday } = formatJournalDate(new Date());
+
   return (
     <div className="journal-shell">
       <div className="journal-page">
-        <h1 className="journal-title">Vibemosphere</h1>
+        <time className="journal-date-header" dateTime={iso}>
+          <span className="journal-date-header__dmy">{dmy}</span>
+          <span className="journal-date-header__weekday">{weekday}</span>
+        </time>
+        <h1 className="journal-title">¿Qué dibujé hoy?</h1>
 
         <div
           className="night-scrap-paper"

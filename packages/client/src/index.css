@@ -101,6 +101,38 @@ body {
   overflow: visible;
 }
 
+.journal-date-header {
+  position: absolute;
+  z-index: 5;
+  top: 28px;
+  right: 28px;
+  max-width: min(52%, 220px);
+  text-align: right;
+  font-family: var(--sans);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  line-height: 1.35;
+  letter-spacing: 0.02em;
+  color: #6d6861;
+  pointer-events: none;
+
+  @media (max-width: 1024px) {
+    top: 22px;
+    right: 20px;
+    font-size: 0.75rem;
+  }
+}
+
+.journal-date-header__dmy,
+.journal-date-header__weekday {
+  display: block;
+}
+
+.journal-date-header__weekday {
+  margin-top: 2px;
+  text-transform: capitalize;
+}
+
 .night-scrap-paper {
   position: absolute;
   z-index: 1;
