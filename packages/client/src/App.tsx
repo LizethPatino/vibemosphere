@@ -45,6 +45,8 @@ function App() {
   return (
     <div className="journal-shell">
       <div className="journal-page">
+        <h1 className="journal-title">Vibemosphere</h1>
+
         <div
           className="color-scrap-sticker color-scrap-sticker--tl"
           style={{ backgroundImage: `url(${colorTexture})` }}
@@ -55,8 +57,6 @@ function App() {
           style={{ backgroundImage: `url(${colorTexture})` }}
           aria-hidden
         />
-
-        <h1 className="journal-title">Vibemosphere</h1>
 
         <div className="polaroid-scene">
           <div
