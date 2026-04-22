@@ -101,19 +101,21 @@ body {
   overflow: visible;
 }
 
-.color-scrap-paper {
+.night-scrap-paper {
   position: absolute;
   z-index: 1;
-  width: 112px;
-  height: 104px;
-  top: clamp(96px, 17vh, 200px);
-  left: clamp(10px, calc(50% - 198px), 22%);
-  background-size: cover;
-  background-position: center;
+  width: 200px;
+  height: 200px;
+  bottom: calc(100% - 191px);
+  right: calc(100% - 193px);
+  background-color: transparent;
+  background-size: contain;
+  background-position: left top;
   background-repeat: no-repeat;
-  border-radius: 6px 18px 9px 15px;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.14);
-  transform: rotate(-4.5deg);
+  border-radius: 0;
+  filter: drop-shadow(1px 3px 5px rgba(0, 0, 0, 0.14));
+  transform-origin: top left;
+  transform: rotate(-1deg);
   pointer-events: none;
   mix-blend-mode: multiply;
   opacity: 0.9;
@@ -131,16 +133,18 @@ body {
 .music-scrap-paper {
   position: absolute;
   z-index: 1;
-  width: 156px;
-  height: 118px;
-  bottom: 36px;
-  right: clamp(14px, 7%, 36px);
-  background-size: cover;
-  background-position: center;
+  width: 225px;
+  height: 200px;
+  top: calc(100% - 170px);
+  left: calc(100% - 194px);
+  background-color: transparent;
+  background-size: contain;
+  background-position: right bottom;
   background-repeat: no-repeat;
-  border-radius: 5px 20px 10px 25px;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-  transform: rotate(-6deg);
+  border-radius: 0;
+  filter: drop-shadow(1px 4px 6px rgba(0, 0, 0, 0.16));
+  transform-origin: center;
+  transform: rotate(180deg);
   pointer-events: none;
   mix-blend-mode: multiply;
   opacity: 0.9;

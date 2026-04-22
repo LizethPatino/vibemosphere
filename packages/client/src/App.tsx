@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import type { MoodResponse } from '@vibemosphere/shared';
 import musicTexture from './assets/music-texture.png';
-import colorTexture from './assets/color-texture.png';
+import nightTexture from './assets/night-texture.png';
 
 function App() {
   const [image, setImage] = useState<string | null>(null);
@@ -48,8 +48,8 @@ function App() {
         <h1 className="journal-title">Vibemosphere</h1>
 
         <div
-          className="color-scrap-paper"
-          style={{ backgroundImage: `url(${colorTexture})` }}
+          className="night-scrap-paper"
+          style={{ backgroundImage: `url(${nightTexture})` }}
           aria-hidden
         />
 
