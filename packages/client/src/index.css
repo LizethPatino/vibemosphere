@@ -247,6 +247,115 @@ h2 {
   line-height: 1.42;
 }
 
+.stamp-micro {
+  margin: 0 0 0.35rem;
+  font-family: var(--sans);
+  font-size: 0.78rem;
+  font-weight: 500;
+  line-height: 1.35;
+  color: rgba(22, 30, 44, 0.78);
+}
+
+.stamp-swatch {
+  display: inline-block;
+  width: 1.35rem;
+  height: 1.35rem;
+  margin-top: 0.5rem;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.85);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.18);
+  vertical-align: middle;
+}
+
+.journal-note {
+  position: relative;
+  z-index: 4;
+  box-sizing: border-box;
+  width: min(calc(100% - 1.5rem), 22rem);
+  margin: 0.85rem 0.75rem 0;
+  padding: 1rem 1.1rem 1.05rem;
+  text-align: left;
+  font-family: var(--sans);
+  font-size: 0.88rem;
+  line-height: 1.45;
+  color: rgba(34, 28, 22, 0.92);
+  background: rgba(255, 252, 248, 0.92);
+  border: 1px solid rgba(220, 210, 198, 0.65);
+  border-radius: 4px 14px 8px 16px;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.06);
+}
+
+.journal-note--interaction {
+  transform: rotate(0.6deg);
+}
+
+.journal-note--reflection {
+  transform: rotate(-0.5deg);
+  margin-bottom: 0.25rem;
+}
+
+.journal-note__lead {
+  margin: 0 0 0.65rem;
+  font-style: italic;
+  font-weight: 500;
+  color: rgba(34, 28, 22, 0.88);
+}
+
+.journal-note__body {
+  margin: 0 0 0.6rem;
+}
+
+.journal-note__chips,
+.journal-note__alts {
+  margin: 0;
+  padding-left: 1.15rem;
+}
+
+.journal-note__chips li,
+.journal-note__alts li {
+  margin: 0.28rem 0;
+}
+
+.journal-note__chips li {
+  font-size: 0.82rem;
+  color: rgba(34, 28, 22, 0.82);
+}
+
+.journal-note__alts {
+  list-style: none;
+  padding-left: 0;
+}
+
+.journal-note__alts li {
+  position: relative;
+  padding-left: 0.85rem;
+  font-size: 0.8rem;
+  color: rgba(34, 28, 22, 0.75);
+}
+
+.journal-note__alts li::before {
+  content: '·';
+  position: absolute;
+  left: 0;
+  font-weight: 700;
+  opacity: 0.55;
+}
+
+.journal-note__quote {
+  margin: 0.85rem 0 0;
+  padding: 0.65rem 0 0;
+  border-top: 1px solid rgba(220, 210, 198, 0.55);
+}
+
+.journal-note__quote p {
+  margin: 0 0 0.4rem;
+}
+
+.journal-note__quote footer {
+  font-size: 0.78rem;
+  color: rgba(34, 28, 22, 0.72);
+}
+
 .polaroid {
   position: relative;
   display: inline-block;
@@ -443,7 +552,7 @@ h2 {
 }
 
 .vibe-result--in-polaroid h2 {
-  color: rgba(26, 42, 58, 0.9);
+  color: var(--vibe-accent, rgba(26, 42, 58, 0.9));
 }
 
 .vibe-result--in-polaroid p,

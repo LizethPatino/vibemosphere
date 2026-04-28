@@ -26,23 +26,53 @@ app.post('/api/analyze', async (req, res) => {
     const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
     const prompt = `
-      Actúa como una curadora de arte y atmósfera experta en cine de culto y literatura. 
-      Analiza esta imagen y devuelve un JSON estrictamente con este formato:
-      {
-        "hexColor": "Un color hexadecimal que capture la esencia de la imagen",
-        "quote": {
-          "text": "Una cita profunda de un libro, película o poema que encaje",
-          "author": "Nombre del autor",
-          "source": "Título de la obra"
-        },
-        "vibe": {
-          "label": "Un título corto para esta vibra (ej: 'Nostalgia de Domingo')",
-          "description": "Una breve explicación de por qué elegiste esto"
-        },
-        "musicSearchQuery": "Un término de búsqueda para Spotify (ej: 'French 60s pop' o 'Slow reverb indie')"
-      }
-      Solo devuelve el JSON, sin texto extra.
-    `;
+Act as an Emotional Interpreter for a visual journaling app.
+
+Analyze the provided illustration and extract its emotional tone in a way that feels intuitive, human, and open to interpretation.
+
+Return a strictly formatted JSON object (property names exactly as shown):
+
+{
+  "stamp": {
+    "title": "Short poetic title (max 3 words)",
+    "microDescription": "Very concise emotional description (max 10 words)",
+    "music": "Short music vibe (max 5 words)",
+    "color": "Hex color as #RRGGBB"
+  },
+
+  "interaction": {
+    "question": "A gentle reflective question inviting the user to validate the interpretation",
+    "adjustmentSuggestions": [
+      "short suggestion",
+      "short suggestion",
+      "short suggestion"
+    ]
+  },
+
+  "reflection": {
+    "description": "Short reflective explanation (max 60 words)",
+    "alternativeVibes": [
+      "brief alternative interpretation",
+      "brief alternative interpretation"
+    ],
+    "quote": {
+      "text": "Meaningful short quote (max 20 words)",
+      "author": "Author or character",
+      "source": "Work title"
+    }
+  }
+}
+
+Rules:
+- Prioritize clarity over complexity.
+- Avoid long paragraphs.
+- Keep everything emotionally resonant but simple.
+- The "stamp" section must feel immediate and light.
+- The "interaction" section must feel inviting, not evaluative.
+- adjustmentSuggestions must contain exactly three short strings.
+- alternativeVibes must contain exactly two short strings.
+- Only return JSON, with no markdown fences or text before or after.
+`;
 
     const imageData = image.split(',')[1] || image;
     const result = await model.generateContent([

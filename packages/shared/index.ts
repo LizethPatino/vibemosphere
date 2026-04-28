@@ -1,13 +1,21 @@
 export type MoodResponse = {
-  hexColor: string;
-  quote: {
-    text: string;
-    author: string;
-    source: string;
+  stamp: {
+    title: string;
+    microDescription: string;
+    music: string;
+    color: string;
   };
-  vibe: {
-    label: string;
+  interaction: {
+    question: string;
+    adjustmentSuggestions: string[];
+  };
+  reflection: {
     description: string;
+    alternativeVibes: string[];
+    quote: {
+      text: string;
+      author: string;
+      source: string;
+    };
   };
-  musicSearchQuery: string;
 };

@@ -1,7 +1,12 @@
-import { useState } from 'react'
+import { useState, type CSSProperties } from 'react';
 import type { MoodResponse } from '@vibemosphere/shared';
 import musicTexture from './assets/music-texture.png';
 import nightTexture from './assets/night-texture.png';
+
+function cssHexColor(color: string) {
+  const t = color.trim();
+  return t.startsWith('#') ? t : `#${t}`;
+}
 
 function formatJournalDate(now: Date) {
   const dd = String(now.getDate()).padStart(2, '0');
@@ -113,14 +118,24 @@ function App() {
         {result && (
           <div className="result-layer-stack">
             <div className="polaroid-wrap polaroid-wrap--result polaroid-wrap--layered">
-              <div className="polaroid polaroid--result">
+              <div
+                className="polaroid polaroid--result"
+                style={
+                  {
+                    ['--vibe-accent']: cssHexColor(result.stamp.color),
+                  } as CSSProperties
+                }
+              >
                 <div className="polaroid__photo polaroid__photo--static polaroid__photo--fluid">
                   <div className="vibe-result vibe-result--in-polaroid">
-                    <h2>{result.vibe.label}</h2>
-                    <p>
-                      <i>{`"${result.quote.text}"`}</i>
-                    </p>
-                    <p>— {result.quote.author} ({result.quote.source})</p>
+                    <p className="stamp-micro">{result.stamp.microDescription}</p>
+                    <h2>{result.stamp.title}</h2>
+                    <span
+                      className="stamp-swatch"
+                      style={{ backgroundColor: cssHexColor(result.stamp.color) }}
+                      title={cssHexColor(result.stamp.color)}
+                      aria-hidden
+                    />
                     <hr />
                   </div>
                 </div>
@@ -132,8 +147,38 @@ function App() {
               </div>
             </div>
             <div className="music-query-card">
-              <span className="music-query-card__kicker">Búsqueda musical</span>
-              <p className="music-query-card__query">{result.musicSearchQuery}</p>
+              <span className="music-query-card__kicker">Vibra musical</span>
+              <p className="music-query-card__query">{result.stamp.music}</p>
+            </div>
+            <div className="journal-note journal-note--interaction">
+              <p className="journal-note__lead">{result.interaction.question}</p>
+              {Array.isArray(result.interaction.adjustmentSuggestions) &&
+                result.interaction.adjustmentSuggestions.length > 0 && (
+                  <ul className="journal-note__chips">
+                    {result.interaction.adjustmentSuggestions.map((s, i) => (
+                      <li key={i}>{s}</li>
+                    ))}
+                  </ul>
+                )}
+            </div>
+            <div className="journal-note journal-note--reflection">
+              <p className="journal-note__body">{result.reflection.description}</p>
+              {Array.isArray(result.reflection.alternativeVibes) &&
+                result.reflection.alternativeVibes.length > 0 && (
+                  <ul className="journal-note__alts">
+                    {result.reflection.alternativeVibes.map((v, i) => (
+                      <li key={i}>{v}</li>
+                    ))}
+                  </ul>
+                )}
+              <blockquote className="journal-note__quote">
+                <p>
+                  <i>{`"${result.reflection.quote.text}"`}</i>
+                </p>
+                <footer>
+                  — {result.reflection.quote.author} ({result.reflection.quote.source})
+                </footer>
+              </blockquote>
             </div>
           </div>
         )}
