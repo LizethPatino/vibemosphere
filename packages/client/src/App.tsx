@@ -1,12 +1,9 @@
-import { useState, type CSSProperties } from 'react';
+import { useState } from 'react';
 import type { MoodResponse } from '@vibemosphere/shared';
 import musicTexture from './assets/music-texture.png';
 import nightTexture from './assets/night-texture.png';
-
-function cssHexColor(color: string) {
-  const t = color.trim();
-  return t.startsWith('#') ? t : `#${t}`;
-}
+import { UploadScreen } from './screens/UploadScreen';
+import { ResultScreen } from './screens/ResultScreen';
 
 function formatJournalDate(now: Date) {
   const dd = String(now.getDate()).padStart(2, '0');
@@ -19,6 +16,7 @@ function formatJournalDate(now: Date) {
 }
 
 function App() {
+  const [screen, setScreen] = useState<'upload' | 'result'>('upload');
   const [image, setImage] = useState<string | null>(null);
   const [result, setResult] = useState<MoodResponse | null>(null);
   const [loading, setLoading] = useState(false);
@@ -30,6 +28,8 @@ function App() {
       
       reader.onloadend = () => {
         setImage(reader.result as string);
+        setResult(null);
+        setScreen('upload');
       };
       
       reader.readAsDataURL(file);
@@ -49,6 +49,7 @@ function App() {
 
       const data = await response.json();
       setResult(data);
+      setScreen('result');
     } catch (error) {
       console.error("Error al conectar con el cerebro:", error);
       alert("Hubo un problema con la conexión");
@@ -59,138 +60,33 @@ function App() {
 
   const { iso, dmy, weekday } = formatJournalDate(new Date());
 
+  if (screen === 'result' && image && result) {
+    return (
+      <ResultScreen
+        iso={iso}
+        dmy={dmy}
+        weekday={weekday}
+        nightTexture={nightTexture}
+        musicTexture={musicTexture}
+        image={image}
+        result={result}
+      />
+    );
+  }
+
   return (
-    <div className="journal-shell">
-      <div className="journal-page">
-        <time className="journal-date-header" dateTime={iso}>
-          <span className="journal-date-header__dmy">{dmy}</span>
-          <span className="journal-date-header__weekday">{weekday}</span>
-        </time>
-        <h1 className="journal-title">¿Qué dibujé hoy?</h1>
-
-        <div
-          className="night-scrap-paper"
-          style={{ backgroundImage: `url(${nightTexture})` }}
-          aria-hidden
-        />
-
-        <div className="polaroid-scene">
-          <div className="polaroid-wrap polaroid-wrap--layered">
-            <div className="polaroid">
-              <label className="polaroid__photo" htmlFor="polaroid-upload">
-                <input
-                  id="polaroid-upload"
-                  className="polaroid__file"
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageChange}
-                />
-                {image ? (
-                  <img className="polaroid__img" src={image} alt="Vista previa de tu dibujo" />
-                ) : (
-                  <div className="polaroid__placeholder">
-                    <span className="polaroid__placeholder-label">Tape your drawing here</span>
-                  </div>
-                )}
-              </label>
-              <div className="polaroid__chin" aria-hidden="true">
-                <span className="polaroid__ctrl">⏮</span>
-                <span className="polaroid__ctrl">⏸</span>
-                <span className="polaroid__ctrl">⏭</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {image && (
-          <div className="polaroid-actions">
-            <button
-              type="button"
-              className="polaroid-submit"
-              onClick={analyzeVibe}
-              disabled={loading}
-            >
-              {loading ? 'Analizando vibra...' : 'Generar Estampilla'}
-            </button>
-          </div>
-        )}
-
-        {result && (
-          <div className="result-layer-stack">
-            <div className="polaroid-wrap polaroid-wrap--result polaroid-wrap--layered">
-              <div
-                className="polaroid polaroid--result"
-                style={
-                  {
-                    ['--vibe-accent']: cssHexColor(result.stamp.color),
-                  } as CSSProperties
-                }
-              >
-                <div className="polaroid__photo polaroid__photo--static polaroid__photo--fluid">
-                  <div className="vibe-result vibe-result--in-polaroid">
-                    <p className="stamp-micro">{result.stamp.microDescription}</p>
-                    <h2>{result.stamp.title}</h2>
-                    <span
-                      className="stamp-swatch"
-                      style={{ backgroundColor: cssHexColor(result.stamp.color) }}
-                      title={cssHexColor(result.stamp.color)}
-                      aria-hidden
-                    />
-                    <hr />
-                  </div>
-                </div>
-                <div className="polaroid__chin" aria-hidden="true">
-                  <span className="polaroid__ctrl">⏮</span>
-                  <span className="polaroid__ctrl">⏸</span>
-                  <span className="polaroid__ctrl">⏭</span>
-                </div>
-              </div>
-            </div>
-            <div className="music-query-card">
-              <span className="music-query-card__kicker">Vibra musical</span>
-              <p className="music-query-card__query">{result.stamp.music}</p>
-            </div>
-            <div className="journal-note journal-note--interaction">
-              <p className="journal-note__lead">{result.interaction.question}</p>
-              {Array.isArray(result.interaction.adjustmentSuggestions) &&
-                result.interaction.adjustmentSuggestions.length > 0 && (
-                  <ul className="journal-note__chips">
-                    {result.interaction.adjustmentSuggestions.map((s, i) => (
-                      <li key={i}>{s}</li>
-                    ))}
-                  </ul>
-                )}
-            </div>
-            <div className="journal-note journal-note--reflection">
-              <p className="journal-note__body">{result.reflection.description}</p>
-              {Array.isArray(result.reflection.alternativeVibes) &&
-                result.reflection.alternativeVibes.length > 0 && (
-                  <ul className="journal-note__alts">
-                    {result.reflection.alternativeVibes.map((v, i) => (
-                      <li key={i}>{v}</li>
-                    ))}
-                  </ul>
-                )}
-              <blockquote className="journal-note__quote">
-                <p>
-                  <i>{`"${result.reflection.quote.text}"`}</i>
-                </p>
-                <footer>
-                  — {result.reflection.quote.author} ({result.reflection.quote.source})
-                </footer>
-              </blockquote>
-            </div>
-          </div>
-        )}
-
-        <div
-          className="music-scrap-paper"
-          style={{ backgroundImage: `url(${musicTexture})` }}
-          aria-hidden
-        />
-      </div>
-    </div>
-  )
+    <UploadScreen
+      iso={iso}
+      dmy={dmy}
+      weekday={weekday}
+      nightTexture={nightTexture}
+      musicTexture={musicTexture}
+      image={image}
+      loading={loading}
+      onImageChange={handleImageChange}
+      onAnalyze={analyzeVibe}
+    />
+  );
 }
 
 export default App
