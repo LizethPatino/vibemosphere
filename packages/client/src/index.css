@@ -590,6 +590,32 @@ h1 {
   }
 }
 
+.journal-heading {
+  position: relative;
+  z-index: 4;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  margin: 20px auto 40px;
+  padding: 0 0.5rem;
+  text-align: center;
+}
+
+.journal-heading .journal-title {
+  margin: 0 auto 0.45rem;
+}
+
+.journal-title-sub {
+  margin: 0 auto;
+  max-width: 22rem;
+  font-family: var(--sans);
+  font-size: 1.0rem;
+  font-weight: 500;
+  line-height: 1.45;
+  letter-spacing: 0.02em;
+  color: rgba(85, 81, 76, 0.92);
+}
+
 .journal-title {
   box-sizing: border-box;
   position: relative;

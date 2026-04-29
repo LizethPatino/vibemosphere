@@ -30,7 +30,10 @@ export function UploadScreen({
           <span className="journal-date-header__dmy">{dmy}</span>
           <span className="journal-date-header__weekday">{weekday}</span>
         </time>
-        <h1 className="journal-title">¿Qué dibujé hoy?</h1>
+        <header className="journal-heading">
+          <h1 className="journal-title">Tu ilustración de hoy</h1>
+          <p className="journal-title-sub">Veamos qué hay en ella ✨</p>
+        </header>
 
         <div
           className="night-scrap-paper"
@@ -74,7 +77,7 @@ export function UploadScreen({
               onClick={onAnalyze}
               disabled={loading}
             >
-              {loading ? 'Analizando vibra...' : 'Generar Estampilla'}
+              {loading ? 'Analizando vibra...' : 'Descubrir una vibe ✨'}
             </button>
           </div>
         )}
