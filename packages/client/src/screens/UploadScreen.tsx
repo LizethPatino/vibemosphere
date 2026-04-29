@@ -1,4 +1,5 @@
-import type { ChangeEvent } from 'react';
+import { type ChangeEvent } from 'react';
+import Loading from '../components/Loading';
 
 type Props = {
   iso: string;
@@ -23,6 +24,8 @@ export function UploadScreen({
   onImageChange,
   onAnalyze,
 }: Props) {
+  const polaroidBusy = Boolean(image && loading);
+
   return (
     <div className="journal-shell">
       <div className="journal-page">
@@ -43,17 +46,29 @@ export function UploadScreen({
 
         <div className="polaroid-scene">
           <div className="polaroid-wrap polaroid-wrap--layered">
-            <div className="polaroid">
-              <label className="polaroid__photo" htmlFor="polaroid-upload">
+            <div className={`polaroid${polaroidBusy ? ' polaroid--observing' : ''}`}>
+              <label
+                className={`polaroid__photo${polaroidBusy ? ' polaroid__photo--interpreting' : ''}`}
+                htmlFor="polaroid-upload"
+                aria-busy={polaroidBusy}
+              >
                 <input
                   id="polaroid-upload"
                   className="polaroid__file"
                   type="file"
                   accept="image/*"
                   onChange={onImageChange}
+                  disabled={loading}
                 />
                 {image ? (
-                  <img className="polaroid__img" src={image} alt="Vista previa de tu dibujo" />
+                  <>
+                    <img
+                      className={`polaroid__img${loading ? ' polaroid__img--interpreting' : ''}`}
+                      src={image}
+                      alt="Vista previa de tu dibujo"
+                    />
+                    <Loading.Overlay active={loading} />
+                  </>
                 ) : (
                   <div className="polaroid__placeholder">
                     <span className="polaroid__placeholder-label">Tape your drawing here</span>
@@ -71,14 +86,13 @@ export function UploadScreen({
 
         {image && (
           <div className="polaroid-actions">
-            <button
-              type="button"
-              className="polaroid-submit"
-              onClick={onAnalyze}
-              disabled={loading}
-            >
-              {loading ? 'Analizando vibra...' : 'Descubrir una vibe ✨'}
-            </button>
+            {loading ? (
+              <Loading />
+            ) : (
+              <button type="button" className="polaroid-submit" onClick={onAnalyze}>
+                Descubrir una vibe
+              </button>
+            )}
           </div>
         )}
 

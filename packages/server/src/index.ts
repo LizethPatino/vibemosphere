@@ -94,5 +94,5 @@ Rules:
 });
 
 app.listen(port, () => {
-  console.log(`🚀 Vibemosphere Brain running at http://localhost:${port}`);
+  console.log(`🚀 Vibemosphere isrunning at http://localhost:${port}`);
 });
