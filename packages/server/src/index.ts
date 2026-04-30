@@ -37,7 +37,8 @@ Return a strictly formatted JSON object (property names exactly as shown):
     "title": "Short poetic title (max 3 words)",
     "microDescription": "Very concise emotional description (max 10 words)",
     "music": "Short music vibe (max 5 words)",
-    "color": "Hex color as #RRGGBB"
+    "color": "Hex color as #RRGGBB",
+    "description": "Gentle reflective paragraph (max ~80 words): why this vibe fits the drawing—human, not technical"
   },
 
   "interaction": {
@@ -67,6 +68,7 @@ Rules:
 - Prioritize clarity over complexity.
 - Avoid long paragraphs.
 - Keep everything emotionally resonant but simple.
+- Always include "stamp.description" (reflective, not technical).
 - The "stamp" section must feel immediate and light.
 - The "interaction" section must feel inviting, not evaluative.
 - adjustmentSuggestions must contain exactly three short strings.

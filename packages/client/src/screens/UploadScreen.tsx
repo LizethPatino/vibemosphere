@@ -75,11 +75,7 @@ export function UploadScreen({
                   </div>
                 )}
               </label>
-              <div className="polaroid__chin" aria-hidden="true">
-                <span className="polaroid__ctrl">⏮</span>
-                <span className="polaroid__ctrl">⏸</span>
-                <span className="polaroid__ctrl">⏭</span>
-              </div>
+              <div className="polaroid__chinstrip" aria-hidden="true" />
             </div>
           </div>
         </div>
