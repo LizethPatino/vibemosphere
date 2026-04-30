@@ -65,6 +65,7 @@ Return a strictly formatted JSON object (property names exactly as shown):
 }
 
 Rules:
+- Never include section labels, stage directions, or parenthetical tags in any string value (for example do not write "(Philosophical observation)" or similar—only the actual content).
 - Prioritize clarity over complexity.
 - Avoid long paragraphs.
 - Keep everything emotionally resonant but simple.

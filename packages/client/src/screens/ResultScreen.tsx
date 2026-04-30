@@ -2,10 +2,18 @@ import { useId, useState } from 'react';
 import type { MoodResponse } from '@vibemosphere/shared';
 import { Divider } from '../components/Divider';
 
+/** Quita rótulos meta que a veces devuelve el modelo (p. ej. secciones entre paréntesis). */
+function stripAiMetaLabels(text: string) {
+  return text
+    .replace(/\s*\(Philosophical observation\)\s*/gi, ' ')
+    .replace(/\s{2,}/g, ' ')
+    .trim();
+}
+
 function vibeWhyText(result: MoodResponse) {
   const d = result.stamp.description?.trim();
-  if (d) return d;
-  return result.reflection.description;
+  if (d) return stripAiMetaLabels(d);
+  return stripAiMetaLabels(result.reflection.description);
 }
 
 type Props = {
@@ -56,6 +64,18 @@ export function ResultScreen({
                   <div className="polaroid__chinstrip" aria-hidden="true" />
                 </div>
               </div>
+              <figure className="result-visual-quote">
+                <blockquote className="result-visual-quote__text">
+                  <p>“{result.reflection.quote.text}”</p>
+                </blockquote>
+                <figcaption className="result-visual-quote__meta">
+                  — {result.reflection.quote.author}  — 
+                  <span className="result-visual-quote__source">
+                    {' '}
+                    ({result.reflection.quote.source})
+                  </span>
+                </figcaption>
+              </figure>
             </div>
 
             <div className="result-top__copy">

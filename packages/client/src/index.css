@@ -249,9 +249,51 @@ h2 {
 
 .result-top__visual {
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
   flex-shrink: 0;
   min-width: 0;
+}
+
+.result-visual-quote {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: min(19rem, 100%);
+  margin: 0.75rem 0 0;
+  padding: 0 0.25rem;
+  text-align: center;
+}
+
+.result-visual-quote__text {
+  margin: 0 0 0.45rem;
+  padding: 0;
+  border: none;
+  font-family: var(--result-serif, 'Lora', Georgia, serif);
+  font-size: clamp(0.82rem, 2.1vw, 0.95rem);
+  font-weight: 500;
+  font-style: italic;
+  line-height: 1.55;
+  letter-spacing: 0.015em;
+  color: var(--result-text-primary, rgba(38, 35, 33, 0.92));
+}
+
+.result-visual-quote__text p {
+  margin: 0;
+}
+
+.result-visual-quote__meta {
+  margin: 0;
+  font-family: var(--sans);
+  font-size: 0.68rem;
+  font-weight: 500;
+  line-height: 1.4;
+  color: var(--result-text-secondary, rgba(88, 82, 76, 0.82));
+}
+
+.result-visual-quote__source {
+  font-weight: 400;
+  opacity: 0.9;
 }
 
 .result-top__copy {
