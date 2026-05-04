@@ -1,5 +1,6 @@
 import { type ChangeEvent } from 'react';
 import Loading from '../components/Loading';
+import { JournalFooter } from '../components/JournalFooter';
 
 type Props = {
   iso: string;
@@ -92,11 +93,10 @@ export function UploadScreen({
                 </button>
               )}
             </div>
-            <a href="#journal" className="journal-history-link">
-              ↗ View your vibe journal
-            </a>
           </>
         )}
+
+        <JournalFooter />
 
         <div
           className="music-scrap-paper"

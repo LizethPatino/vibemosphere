@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import type { MoodResponse } from '@vibemosphere/shared';
+import { JournalFooter } from '../components/JournalFooter';
 
 type Props = {
   iso: string;
@@ -146,6 +147,8 @@ export function FeedbackScreen({
             Save to my vibe journal
           </button>
         </div>
+
+        <JournalFooter />
 
         <div className="music-scrap-paper" style={{ backgroundImage: `url(${musicTexture})` }} aria-hidden />
       </div>

@@ -1,6 +1,7 @@
 import { useId, useState } from 'react';
 import type { MoodResponse } from '@vibemosphere/shared';
 import { Divider } from '../components/Divider';
+import { JournalFooter } from '../components/JournalFooter';
 
 /** Quita rótulos meta que a veces devuelve el modelo (p. ej. secciones entre paréntesis). */
 function stripAiMetaLabels(text: string) {
@@ -83,11 +84,10 @@ export function ResultScreen({
             <div className="result-top__copy">
               <p className="result-vibe-label">It feels like…</p>
               <h2 className="result-vibe-title">{result.stamp.title}</h2>
-              <p className="result-vibe-micro">{result.stamp.microDescription}</p>
               <div className="result-vibe-tags">
-                {result.stamp.microDescription.split(',').map((tag, i) => (
+                {result.stamp.moodTags.map((tag, i) => (
                   <span key={i} className="result-vibe-tag">
-                    {tag.trim().replace('.', '')}
+                    {tag}
                   </span>
                 ))}
               </div>
@@ -123,28 +123,57 @@ export function ResultScreen({
 
           <div className="result-bottom">
             <section className="result-music" aria-label="Music suggestion">
-              <div className="result-music__scrap">
-                <p className="result-music__label">To accompany this moment</p>
-                <a
-                  className="result-music__line result-music__line--link"
-                  href={`https://www.youtube.com/results?search_query=${encodeURIComponent(result.stamp.music)}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  🎧 {result.stamp.music} ↗
-                </a>
-                <div className="result-music__controls" role="group" aria-label="Music controls">
-                  <button type="button" className="result-music__ctrl" aria-label="Previous">
-                    ⏮
-                  </button>
-                  <button type="button" className="result-music__ctrl" aria-label="Pause">
-                    ⏸
-                  </button>
-                  <button type="button" className="result-music__ctrl" aria-label="Next">
-                    ⏭
-                  </button>
+              <a
+                className="result-music__ticket"
+                href={`https://www.youtube.com/results?search_query=${encodeURIComponent(result.stamp.music)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={`Listen to ${result.stamp.music} on YouTube`}
+              >
+                <div className="result-music__stub">
+                  <span className="result-music__stub-note">♪</span>
+                  <span className="result-music__stub-text">listen</span>
                 </div>
-              </div>
+                <div className="result-music__perf">
+                  {[0, 1, 2, 3, 4].map((i) => (
+                    <span key={i} className="result-music__perf-dot" />
+                  ))}
+                </div>
+                <div className="result-music__body">
+                  <p className="result-music__label">To accompany this moment</p>
+                  <p className="result-music__title">
+                    {result.stamp.music.includes('–')
+                      ? result.stamp.music.split('–')[0].trim()
+                      : result.stamp.music}
+                  </p>
+                  {result.stamp.music.includes('–') && (
+                    <p className="result-music__artist">
+                      {result.stamp.music.split('–')[1].trim()}
+                    </p>
+                  )}
+                  <div className="result-music__footer">
+                    <span className="result-music__admit">Admit one · open in</span>
+                    <span className="result-music__yt">
+                      YouTube
+                      <svg
+                        viewBox="0 0 24 24"
+                        width="8"
+                        height="8"
+                        stroke="currentColor"
+                        fill="none"
+                        strokeWidth="1.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        aria-hidden
+                      >
+                        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                        <polyline points="15 3 21 3 21 9" />
+                        <line x1="10" y1="14" x2="21" y2="3" />
+                      </svg>
+                    </span>
+                  </div>
+                </div>
+              </a>
             </section>
 
             <button type="button" className="result-next-cta" onClick={onGoToFeedback}>
@@ -152,6 +181,8 @@ export function ResultScreen({
             </button>
           </div>
         </div>
+
+        <JournalFooter />
 
         <div
           className="music-scrap-paper"

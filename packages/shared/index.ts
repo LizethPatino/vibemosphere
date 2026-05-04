@@ -1,10 +1,9 @@
 export type MoodResponse = {
   stamp: {
     title: string;
-    microDescription: string;
+    moodTags: string[];
     music: string;
     color: string;
-    /** Longer reflective "why this vibe" (may duplicate reflection tone; UI prefers this in expand). */
     description?: string;
   };
   interaction: {

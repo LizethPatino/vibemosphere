@@ -35,10 +35,10 @@ Return a strictly formatted JSON object (property names exactly as shown):
 {
   "stamp": {
     "title": "Short poetic title (max 3 words)",
-    "microDescription": "Very concise emotional description (max 10 words)",
-    "music": "Short music vibe (max 5 words)",
+    "moodTags": ["one word", "one word", "one word"],
+    "music": "Song title – Artist name",
     "color": "Hex color as #RRGGBB",
-    "description": "Gentle reflective paragraph (max ~80 words): why this vibe fits the drawing—human, not technical"
+    "description": "One sentence (max 20 words) in the tone of a close friend gently noticing something about you. Warm, personal, slightly poetic. Not a description of the image — a reflection of the feeling. Example: 'This one feels like you needed a quiet moment just for yourself.'"
   },
 
   "interaction": {
@@ -65,7 +65,9 @@ Return a strictly formatted JSON object (property names exactly as shown):
 }
 
 Rules:
-- Never include section labels, stage directions, or parenthetical tags in any string value (for example do not write "(Philosophical observation)" or similar—only the actual content).
+- moodTags must be exactly 3 items. Each item must be a SINGLE word (adjective only). No phrases, no commas within items. Examples: ["warm", "playful", "tender"].
+- music must be a real existing song recommendation with format "Song Title – Artist". Choose a song that emotionally matches the illustration's feeling. Examples: "Claire de Lune – Debussy", "Dog Days Are Over – Florence and the Machine".
+- Never include section labels, stage directions, or parenthetical tags in any string value.
 - Prioritize clarity over complexity.
 - Avoid long paragraphs.
 - Keep everything emotionally resonant but simple.
@@ -97,5 +99,5 @@ Rules:
 });
 
 app.listen(port, () => {
-  console.log(`🚀 Vibemosphere isrunning at http://localhost:${port}`);
+  console.log(`🚀 Vibemosphere is running at http://localhost:${port}`);
 });
