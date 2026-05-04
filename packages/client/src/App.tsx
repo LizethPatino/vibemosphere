@@ -4,6 +4,7 @@ import musicTexture from './assets/music-texture.png';
 import nightTexture from './assets/night-texture.png';
 import { UploadScreen } from './screens/UploadScreen';
 import { ResultScreen } from './screens/ResultScreen';
+import { FeedbackScreen } from './screens/FeedbackScreen';
 
 function formatJournalDate(now: Date) {
   const dd = String(now.getDate()).padStart(2, '0');
@@ -16,7 +17,7 @@ function formatJournalDate(now: Date) {
 }
 
 function App() {
-  const [screen, setScreen] = useState<'upload' | 'result'>('upload');
+  const [screen, setScreen] = useState<'upload' | 'result' | 'feedback'>('upload');
   const [image, setImage] = useState<string | null>(null);
   const [result, setResult] = useState<MoodResponse | null>(null);
   const [loading, setLoading] = useState(false);
@@ -58,6 +59,14 @@ function App() {
     }
   };
 
+  const handleGoToFeedback = () => setScreen('feedback');
+
+  const handleRestart = () => {
+    setScreen('upload');
+    setImage(null);
+    setResult(null);
+  };
+
   const { iso, dmy, weekday } = formatJournalDate(new Date());
 
   if (screen === 'result' && image && result) {
@@ -70,6 +79,22 @@ function App() {
         musicTexture={musicTexture}
         image={image}
         result={result}
+        onGoToFeedback={handleGoToFeedback}
+      />
+    );
+  }
+
+  if (screen === 'feedback' && image && result) {
+    return (
+      <FeedbackScreen
+        iso={iso}
+        dmy={dmy}
+        weekday={weekday}
+        nightTexture={nightTexture}
+        musicTexture={musicTexture}
+        image={image}
+        result={result}
+        onRestart={handleRestart}
       />
     );
   }

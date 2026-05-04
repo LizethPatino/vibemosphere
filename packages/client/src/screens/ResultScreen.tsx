@@ -24,6 +24,7 @@ type Props = {
   musicTexture: string;
   image: string;
   result: MoodResponse;
+  onGoToFeedback: () => void;
 };
 
 export function ResultScreen({
@@ -34,6 +35,7 @@ export function ResultScreen({
   musicTexture,
   image,
   result,
+  onGoToFeedback,
 }: Props) {
   const [whyOpen, setWhyOpen] = useState(false);
   const whyPanelId = useId();
@@ -82,6 +84,13 @@ export function ResultScreen({
               <p className="result-vibe-label">It feels like…</p>
               <h2 className="result-vibe-title">{result.stamp.title}</h2>
               <p className="result-vibe-micro">{result.stamp.microDescription}</p>
+              <div className="result-vibe-tags">
+                {result.stamp.microDescription.split(',').map((tag, i) => (
+                  <span key={i} className="result-vibe-tag">
+                    {tag.trim().replace('.', '')}
+                  </span>
+                ))}
+              </div>
 
               <div className="vibe-why vibe-why--result">
                 <button
@@ -116,7 +125,14 @@ export function ResultScreen({
             <section className="result-music" aria-label="Music suggestion">
               <div className="result-music__scrap">
                 <p className="result-music__label">To accompany this moment</p>
-                <p className="result-music__line">🎧 {result.stamp.music}</p>
+                <a
+                  className="result-music__line result-music__line--link"
+                  href={`https://www.youtube.com/results?search_query=${encodeURIComponent(result.stamp.music)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  🎧 {result.stamp.music} ↗
+                </a>
                 <div className="result-music__controls" role="group" aria-label="Music controls">
                   <button type="button" className="result-music__ctrl" aria-label="Previous">
                     ⏮
@@ -131,20 +147,9 @@ export function ResultScreen({
               </div>
             </section>
 
-            <section className="result-reflect" aria-label="How are you feeling">
-              <p className="result-reflect__q">Does this capture how you feel today?</p>
-              <div className="result-reflect__actions">
-                <button type="button" className="result-chip-btn">
-                  {"💛 Yes, that's exactly it"}
-                </button>
-                <button type="button" className="result-chip-btn">
-                  {"🌿 Close, let's refine it"}
-                </button>
-                <button type="button" className="result-chip-btn">
-                  {"✏️ I'll describe it myself"}
-                </button>
-              </div>
-            </section>
+            <button type="button" className="result-next-cta" onClick={onGoToFeedback}>
+              Does this feel right? →
+            </button>
           </div>
         </div>
 
