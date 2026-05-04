@@ -11,7 +11,7 @@ function formatJournalDate(now: Date) {
   const yyyy = String(now.getFullYear());
   const iso = `${yyyy}-${mm}-${dd}`;
   const dmy = `${dd}/${mm}/${yyyy}`;
-  const weekday = new Intl.DateTimeFormat('es-ES', { weekday: 'long' }).format(now);
+  const weekday = new Intl.DateTimeFormat('en-GB', { weekday: 'long' }).format(now);
   return { iso, dmy, weekday };
 }
 
@@ -51,8 +51,8 @@ function App() {
       setResult(data);
       setScreen('result');
     } catch (error) {
-      console.error("Error al conectar con el cerebro:", error);
-      alert("Hubo un problema con la conexión");
+      console.error("Connection error:", error);
+      alert("Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }

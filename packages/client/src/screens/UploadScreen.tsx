@@ -34,8 +34,8 @@ export function UploadScreen({
           <span className="journal-date-header__weekday">{weekday}</span>
         </time>
         <header className="journal-heading">
-          <h1 className="journal-title">Tu ilustración de hoy</h1>
-          <p className="journal-title-sub">Veamos qué hay en ella ✨</p>
+          <h1 className="journal-title">{"Today's illustration"}</h1>
+          <p className="journal-title-sub">{"What's the vibe hiding in it? ✦"}</p>
         </header>
 
         <div
@@ -65,13 +65,14 @@ export function UploadScreen({
                     <img
                       className={`polaroid__img${loading ? ' polaroid__img--interpreting' : ''}`}
                       src={image}
-                      alt="Vista previa de tu dibujo"
+                      alt="Preview of your illustration"
                     />
                     <Loading.Overlay active={loading} />
                   </>
                 ) : (
                   <div className="polaroid__placeholder">
                     <span className="polaroid__placeholder-label">Tape your drawing here</span>
+                    <span className="polaroid__placeholder-hint">PNG, JPG, GIF · max 10MB</span>
                   </div>
                 )}
               </label>
@@ -81,15 +82,20 @@ export function UploadScreen({
         </div>
 
         {image && (
-          <div className="polaroid-actions">
-            {loading ? (
-              <Loading />
-            ) : (
-              <button type="button" className="polaroid-submit" onClick={onAnalyze}>
-                Descubrir una vibe
-              </button>
-            )}
-          </div>
+          <>
+            <div className="polaroid-actions">
+              {loading ? (
+                <Loading />
+              ) : (
+                <button type="button" className="polaroid-submit" onClick={onAnalyze}>
+                  Discover the vibe
+                </button>
+              )}
+            </div>
+            <a href="#journal" className="journal-history-link">
+              ↗ View your vibe journal
+            </a>
+          </>
         )}
 
         <div

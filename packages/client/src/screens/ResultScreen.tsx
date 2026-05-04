@@ -59,7 +59,7 @@ export function ResultScreen({
               <div className="polaroid-wrap polaroid-wrap--result polaroid-wrap--layered">
                 <div className="polaroid polaroid--result">
                   <div className="polaroid__photo polaroid__photo--static">
-                    <img className="polaroid__img" src={image} alt="Tu dibujo" />
+                    <img className="polaroid__img" src={image} alt="Your illustration" />
                   </div>
                   <div className="polaroid__chinstrip" aria-hidden="true" />
                 </div>
@@ -79,7 +79,7 @@ export function ResultScreen({
             </div>
 
             <div className="result-top__copy">
-              <p className="result-vibe-label">Se siente como…</p>
+              <p className="result-vibe-label">It feels like…</p>
               <h2 className="result-vibe-title">{result.stamp.title}</h2>
               <p className="result-vibe-micro">{result.stamp.microDescription}</p>
 
@@ -91,7 +91,7 @@ export function ResultScreen({
                   aria-controls={whyPanelId}
                   onClick={() => setWhyOpen((o) => !o)}
                 >
-                  Por qué se siente así
+                  Why this vibe?
                 </button>
                 <div
                   id={whyPanelId}
@@ -113,35 +113,35 @@ export function ResultScreen({
           <Divider />
 
           <div className="result-bottom">
-            <section className="result-music" aria-label="Sugerencia musical">
+            <section className="result-music" aria-label="Music suggestion">
               <div className="result-music__scrap">
-                <p className="result-music__label">Para acompañar este momento</p>
+                <p className="result-music__label">To accompany this moment</p>
                 <p className="result-music__line">🎧 {result.stamp.music}</p>
-                <div className="result-music__controls" role="group" aria-label="Controles de música">
-                  <button type="button" className="result-music__ctrl" aria-label="Anterior">
+                <div className="result-music__controls" role="group" aria-label="Music controls">
+                  <button type="button" className="result-music__ctrl" aria-label="Previous">
                     ⏮
                   </button>
-                  <button type="button" className="result-music__ctrl" aria-label="Pausar">
+                  <button type="button" className="result-music__ctrl" aria-label="Pause">
                     ⏸
                   </button>
-                  <button type="button" className="result-music__ctrl" aria-label="Siguiente">
+                  <button type="button" className="result-music__ctrl" aria-label="Next">
                     ⏭
                   </button>
                 </div>
               </div>
             </section>
 
-            <section className="result-reflect" aria-label="Cómo te sientes">
-              <p className="result-reflect__q">¿Esto describe cómo te sientes hoy?</p>
+            <section className="result-reflect" aria-label="How are you feeling">
+              <p className="result-reflect__q">Does this capture how you feel today?</p>
               <div className="result-reflect__actions">
                 <button type="button" className="result-chip-btn">
-                  💛 Sí, así me siento
+                  {"💛 Yes, that's exactly it"}
                 </button>
                 <button type="button" className="result-chip-btn">
-                  🌿 Más o menos, ajustémoslo
+                  {"🌿 Close, let's refine it"}
                 </button>
                 <button type="button" className="result-chip-btn">
-                  ✏️ Quiero escribirlo yo
+                  {"✏️ I'll describe it myself"}
                 </button>
               </div>
             </section>

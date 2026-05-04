@@ -8,16 +8,16 @@ import {
 } from 'react';
 
 const PHRASES_EARLY = [
-  'Encontrando lo que hay aquí…',
-  'Dejando que esto tome forma…',
-  'Escuchando lo que transmite…',
-  'A ver qué surge de aquí…',
+'Finding what lives here…',
+'Letting this take shape…',
+'Listening to what it carries…',
+'Seeing what emerges…'
 ] as const;
 
 const PHRASES_LATE = [
-  'Un momento más…',
-  'Casi aparece algo…',
-  'Siguiendo un poco más…',
+'One more moment…',
+'Almost there…',
+'Just a little longer…'
 ] as const;
 
 const LONG_LOAD_MS = 8000;
