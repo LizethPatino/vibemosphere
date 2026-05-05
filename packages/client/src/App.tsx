@@ -16,11 +16,21 @@ function formatJournalDate(now: Date) {
   return { iso, dmy, weekday };
 }
 
+function getSessionId(): string {
+  let sessionId = localStorage.getItem('vibe_session_id');
+  if (!sessionId) {
+    sessionId = crypto.randomUUID();
+    localStorage.setItem('vibe_session_id', sessionId);
+  }
+  return sessionId;
+}
+
 function App() {
   const [screen, setScreen] = useState<'upload' | 'result' | 'feedback'>('upload');
   const [image, setImage] = useState<string | null>(null);
   const [result, setResult] = useState<MoodResponse | null>(null);
   const [loading, setLoading] = useState(false);
+  const [refinementInput, setRefinementInput] = useState('');
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -59,12 +69,50 @@ function App() {
     }
   };
 
+  const saveEntry = async (
+    feedbackType: 'yes' | 'refined' | 'own',
+    note: string,
+    ownTitle: string,
+    refineInput: string
+  ): Promise<void> => {
+    if (!image || !result) return;
+    const sessionId = getSessionId();
+    try {
+      await fetch('http://localhost:3001/api/entries', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-session-id': sessionId,
+        },
+        body: JSON.stringify({
+          image,
+          vibeData: result,
+          feedback: {
+            type: feedbackType,
+            note,
+            ownTitle,
+            refineInput: refineInput || refinementInput,
+          },
+        }),
+      });
+    } catch (error) {
+      console.error('Error saving entry:', error);
+    }
+  };
+
   const handleGoToFeedback = () => setScreen('feedback');
+
+  const handleRefined = (newResult: MoodResponse, input: string) => {
+    setResult(newResult);
+    setRefinementInput(input);
+    setScreen('result');
+  };
 
   const handleRestart = () => {
     setScreen('upload');
     setImage(null);
     setResult(null);
+    setRefinementInput('');
   };
 
   const { iso, dmy, weekday } = formatJournalDate(new Date());
@@ -95,6 +143,9 @@ function App() {
         image={image}
         result={result}
         onRestart={handleRestart}
+        onSave={saveEntry}
+        onRefined={handleRefined}
+        refinementInput={refinementInput}
       />
     );
   }
