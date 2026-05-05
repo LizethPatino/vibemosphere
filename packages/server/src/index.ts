@@ -72,7 +72,15 @@ Return a strictly formatted JSON object (property names exactly as shown):
 }
 
 Rules:
-- moodTags must be exactly 3 items. Each item must be a SINGLE word (adjective only). No phrases, no commas within items. Examples: ["warm", "playful", "tender"].
+- moodTags must be exactly 3 items chosen from this list only — 
+  do not use any word outside this list:
+  joyful, energetic, playful, vibrant, hopeful, excited,
+  anxious, tense, restless, overwhelmed,
+  melancholic, lonely, somber, heavy,
+  peaceful, serene, cozy, tender, content, nostalgic,
+  wistful, dreamlike, mysterious, bittersweet, whimsical.
+  Each item must be a single word from the list above. No phrases, 
+  no commas within items.
 - music must be a real existing song that emotionally matches the illustration.
 - Format: "Song Title – Artist"
 - You have complete freedom to choose ANY real artist or song from ANY genre, era, or culture.
