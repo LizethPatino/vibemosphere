@@ -5,6 +5,7 @@ import nightTexture from './assets/night-texture.png';
 import { UploadScreen } from './screens/UploadScreen';
 import { ResultScreen } from './screens/ResultScreen';
 import { FeedbackScreen } from './screens/FeedbackScreen';
+import { JournalScreen } from './screens/JournalScreen';
 
 function formatJournalDate(now: Date) {
   const dd = String(now.getDate()).padStart(2, '0');
@@ -26,7 +27,7 @@ function getSessionId(): string {
 }
 
 function App() {
-  const [screen, setScreen] = useState<'upload' | 'result' | 'feedback'>('upload');
+  const [screen, setScreen] = useState<'upload' | 'result' | 'feedback' | 'journal'>('upload');
   const [image, setImage] = useState<string | null>(null);
   const [result, setResult] = useState<MoodResponse | null>(null);
   const [loading, setLoading] = useState(false);
@@ -128,6 +129,7 @@ function App() {
         image={image}
         result={result}
         onGoToFeedback={handleGoToFeedback}
+        onGoToJournal={() => setScreen('journal')}
       />
     );
   }
@@ -146,6 +148,17 @@ function App() {
         onSave={saveEntry}
         onRefined={handleRefined}
         refinementInput={refinementInput}
+        onGoToJournal={() => setScreen('journal')}
+      />
+    );
+  }
+
+  if (screen === 'journal') {
+    return (
+      <JournalScreen
+        nightTexture={nightTexture}
+        musicTexture={musicTexture}
+        onBack={() => setScreen('upload')}
       />
     );
   }
@@ -161,6 +174,7 @@ function App() {
       loading={loading}
       onImageChange={handleImageChange}
       onAnalyze={analyzeVibe}
+      onGoToJournal={() => setScreen('journal')}
     />
   );
 }

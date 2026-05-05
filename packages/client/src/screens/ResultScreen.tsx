@@ -26,6 +26,7 @@ type Props = {
   image: string;
   result: MoodResponse;
   onGoToFeedback: () => void;
+  onGoToJournal: () => void;
 };
 
 export function ResultScreen({
@@ -37,6 +38,7 @@ export function ResultScreen({
   image,
   result,
   onGoToFeedback,
+  onGoToJournal,
 }: Props) {
   const [whyOpen, setWhyOpen] = useState(false);
   const whyPanelId = useId();
@@ -182,7 +184,7 @@ export function ResultScreen({
           </div>
         </div>
 
-        <JournalFooter />
+        <JournalFooter onGoToJournal={onGoToJournal} />
 
         <div
           className="music-scrap-paper"

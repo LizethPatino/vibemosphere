@@ -19,6 +19,7 @@ type Props = {
   ) => Promise<void>;
   onRefined: (newResult: MoodResponse, input: string) => void;
   refinementInput: string;
+  onGoToJournal: () => void;
 };
 
 export function FeedbackScreen({
@@ -33,6 +34,7 @@ export function FeedbackScreen({
   onSave,
   onRefined,
   refinementInput,
+  onGoToJournal,
 }: Props) {
   const [selected, setSelected] = useState<'yes' | 'refine' | 'own' | null>(null);
   const [refineText, setRefineText] = useState('');
@@ -217,7 +219,7 @@ export function FeedbackScreen({
           </button>
         </div>
 
-        <JournalFooter />
+        <JournalFooter onGoToJournal={onGoToJournal} />
 
         <div className="music-scrap-paper" style={{ backgroundImage: `url(${musicTexture})` }} aria-hidden />
       </div>

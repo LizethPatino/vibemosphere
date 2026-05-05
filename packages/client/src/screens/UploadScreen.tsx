@@ -12,6 +12,7 @@ type Props = {
   loading: boolean;
   onImageChange: (e: ChangeEvent<HTMLInputElement>) => void;
   onAnalyze: () => void;
+  onGoToJournal: () => void;
 };
 
 export function UploadScreen({
@@ -24,6 +25,7 @@ export function UploadScreen({
   loading,
   onImageChange,
   onAnalyze,
+  onGoToJournal,
 }: Props) {
   const polaroidBusy = Boolean(image && loading);
 
@@ -96,7 +98,7 @@ export function UploadScreen({
           </>
         )}
 
-        <JournalFooter />
+        <JournalFooter onGoToJournal={onGoToJournal} />
 
         <div
           className="music-scrap-paper"
