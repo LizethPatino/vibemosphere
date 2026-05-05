@@ -49,6 +49,50 @@ function parseMusic(music: string): { title: string; artist: string } {
   return { title: music, artist: '' };
 }
 
+function groupEntriesByWeek(entries: JournalEntry[]): {
+  label: string;
+  weekKey: string;
+  entries: JournalEntry[];
+}[] {
+  const groups: Record<string, JournalEntry[]> = {};
+
+  entries.forEach((entry) => {
+    const d = new Date(entry.created_at);
+    const monday = new Date(d);
+    monday.setDate(d.getDate() - ((d.getDay() + 6) % 7));
+    monday.setHours(0, 0, 0, 0);
+    const key = monday.toISOString().split('T')[0];
+    if (!groups[key]) groups[key] = [];
+    groups[key].push(entry);
+  });
+
+  const now = new Date();
+  const thisMonday = new Date(now);
+  thisMonday.setDate(now.getDate() - ((now.getDay() + 6) % 7));
+  thisMonday.setHours(0, 0, 0, 0);
+
+  const lastMonday = new Date(thisMonday);
+  lastMonday.setDate(thisMonday.getDate() - 7);
+
+  return Object.entries(groups)
+    .sort(([a], [b]) => b.localeCompare(a))
+    .map(([key, entries]) => {
+      const keyDate = new Date(key);
+      let label: string;
+      if (keyDate.getTime() === thisMonday.getTime()) {
+        label = 'this week';
+      } else if (keyDate.getTime() === lastMonday.getTime()) {
+        label = 'last week';
+      } else {
+        label = new Intl.DateTimeFormat('en-GB', {
+          month: 'long',
+          year: 'numeric',
+        }).format(keyDate);
+      }
+      return { label, weekKey: key, entries };
+    });
+}
+
 // ─── Polaroid card ────────────────────────────────────────────────────────────
 
 function PolaroidCard({
@@ -125,25 +169,116 @@ function PolaroidCard({
   );
 }
 
+const WEEK_PREVIEW = 4;
+
+function WeekSection({
+  label,
+  entries,
+  isFirst,
+  insight,
+  insightLoading,
+}: {
+  label: string;
+  weekKey: string;
+  entries: JournalEntry[];
+  isFirst: boolean;
+  insight: string | null;
+  insightLoading: boolean;
+}) {
+  const [expanded, setExpanded] = useState(false);
+  const visible = expanded ? entries : entries.slice(0, WEEK_PREVIEW);
+  const hidden = entries.length - WEEK_PREVIEW;
+
+  return (
+    <div className="vj-week-section">
+      <div className="vj-week-header">
+        <span className="vj-week-line" />
+        <span className="vj-week-label">{label}</span>
+        {isFirst && insight && (
+          <span className="vj-week-insight">{insight} ✦</span>
+        )}
+        {isFirst && insightLoading && (
+          <span className="vj-week-insight vj-week-insight--loading">
+            reading the week…
+          </span>
+        )}
+        <span className="vj-week-line" />
+      </div>
+
+      <div className="vj-grid">
+        {visible.map((entry, i) => (
+          <PolaroidCard
+            key={entry.id}
+            entry={entry}
+            index={i}
+            onClick={() => {}}
+          />
+        ))}
+      </div>
+
+      {!expanded && hidden > 0 && (
+        <div className="vj-expand-row">
+          <span className="vj-expand-line" />
+          <button
+            className="vj-expand-btn"
+            onClick={() => setExpanded(true)}
+          >
+            <span className="vj-expand-count">+{hidden}</span>
+            show all {label}
+          </button>
+          <span className="vj-expand-line" />
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ─── Empty state ──────────────────────────────────────────────────────────────
 
 function EmptyState({ onBack }: { onBack: () => void }) {
   return (
     <div className="vjempty">
-      <div className="vjempty__polaroid" aria-hidden="true">
-        <div className="vjempty__photo-area">
-          <span className="vjempty__icon">✦</span>
+
+      <div className="vjempty__top">
+        <div className="vjempty__pol vjempty__pol--1">
+          <div className="vjempty__tape" />
+          <div className="vjempty__photo vjempty__photo--1" />
         </div>
-        <p className="vjempty__label">your first illustration</p>
+        <div className="vjempty__pol vjempty__pol--2">
+          <div className="vjempty__photo vjempty__photo--2" />
+        </div>
       </div>
-      <p className="vjempty__text">
-        No vibes yet.
-        <br />
-        Start with an illustration.
-      </p>
-      <button type="button" className="vjempty__cta" onClick={onBack}>
-        Discover the vibe →
-      </button>
+
+      <div className="vjempty__mid">
+        <div className="vjempty__postit">
+          <div className="vjempty__postit-tape" />
+          <p className="vjempty__postit-q">
+            what feeling are you<br />drawing today?
+          </p>
+        </div>
+      </div>
+
+      <div className="vjempty__bottom">
+        <div className="vjempty__pol vjempty__pol--3">
+          <div className="vjempty__photo vjempty__photo--3" />
+        </div>
+        <div className="vjempty__copy">
+          <p className="vjempty__hl-strong">
+            Something hides in every drawing.
+          </p>
+          <p className="vjempty__hl-soft">
+            What's hiding in yours?
+          </p>
+          <button className="vjempty__cta" onClick={onBack}>
+            Tape a drawing ✦
+          </button>
+        </div>
+      </div>
+
+      <span className="vjempty__star vjempty__star--1" aria-hidden="true">★</span>
+      <span className="vjempty__star vjempty__star--2" aria-hidden="true">★</span>
+      <span className="vjempty__star vjempty__star--3" aria-hidden="true">★</span>
+
     </div>
   );
 }
@@ -225,7 +360,9 @@ export function JournalScreen({ nightTexture, musicTexture, onBack }: Props) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [activeTag, setActiveTag] = useState<string | null>(null);
-  const [detail, setDetail] = useState<JournalEntry | null>(null);
+  const [insight, setInsight] = useState<string | null>(null);
+  const [insightLoading, setInsightLoading] = useState(false);
+  const [expandedDetail, setExpandedDetail] = useState<JournalEntry | null>(null);
 
   // Fetch entries
   useEffect(() => {
@@ -244,6 +381,40 @@ export function JournalScreen({ nightTexture, musicTexture, onBack }: Props) {
         setLoading(false);
       });
   }, []);
+
+  useEffect(() => {
+    if (entries.length < 3) return;
+    const now = new Date();
+    const thisMonday = new Date(now);
+    thisMonday.setDate(now.getDate() - ((now.getDay() + 6) % 7));
+    thisMonday.setHours(0, 0, 0, 0);
+    const thisWeekEntries = entries.filter((e) => {
+      const d = new Date(e.created_at);
+      const entryMonday = new Date(d);
+      entryMonday.setDate(d.getDate() - ((d.getDay() + 6) % 7));
+      entryMonday.setHours(0, 0, 0, 0);
+      return entryMonday.getTime() === thisMonday.getTime();
+    });
+    if (thisWeekEntries.length < 3) return;
+    setInsightLoading(true);
+    const sessionId = getSessionId();
+    fetch('http://localhost:3001/api/insight', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-session-id': sessionId,
+      },
+      body: JSON.stringify({
+        moodTags: thisWeekEntries.flatMap((e) => e.mood_tags),
+      }),
+    })
+      .then((r) => r.json())
+      .then((data) => {
+        setInsight(data.insight ?? null);
+        setInsightLoading(false);
+      })
+      .catch(() => setInsightLoading(false));
+  }, [entries]);
 
   // All unique mood tags across entries
   const allTags = Array.from(new Set(entries.flatMap((e) => e.mood_tags))).sort();
@@ -320,30 +491,56 @@ export function JournalScreen({ nightTexture, musicTexture, onBack }: Props) {
               <p className="vj-error">Couldn&apos;t load your journal. Check your connection and try again.</p>
             )}
 
-            {!loading && !error && filtered.length === 0 && <EmptyState onBack={onBack} />}
-
-            {!loading && !error && filtered.length > 0 && (
-              <div className="vj-grid">
-                {filtered.map((entry, i) => (
-                  <PolaroidCard key={entry.id} entry={entry} index={i} onClick={() => setDetail(entry)} />
-                ))}
-              </div>
+            {!loading && !error && filtered.length === 0 && (
+              <EmptyState onBack={onBack} />
             )}
+
+            {!loading && !error && filtered.length > 0 &&
+              (activeTag ? (
+                <div className="vj-grid">
+                  {filtered.map((entry, i) => (
+                    <PolaroidCard
+                      key={entry.id}
+                      entry={entry}
+                      index={i}
+                      onClick={() => setExpandedDetail(entry)}
+                    />
+                  ))}
+                </div>
+              ) : (
+                <div className="vj-weeks">
+                  {groupEntriesByWeek(filtered).map((group, i) => (
+                    <WeekSection
+                      key={group.weekKey}
+                      label={group.label}
+                      weekKey={group.weekKey}
+                      entries={group.entries}
+                      isFirst={i === 0}
+                      insight={insight}
+                      insightLoading={insightLoading}
+                    />
+                  ))}
+                </div>
+              ))}
           </main>
 
           {/* Footer */}
-          <footer className="journal-footer">
-            <span className="journal-footer__line" />
-            <button type="button" className="journal-footer__link" onClick={onBack}>
-              ✦ new illustration ✦
-            </button>
-            <span className="journal-footer__line" />
-          </footer>
+          {entries.length > 0 && (
+            <footer className="journal-footer">
+              <span className="journal-footer__line" />
+              <button type="button" className="journal-footer__link" onClick={onBack}>
+                ✦ new illustration ✦
+              </button>
+              <span className="journal-footer__line" />
+            </footer>
+          )}
         </div>
       </div>
 
       {/* Detail overlay */}
-      {detail && <EntryDetail entry={detail} onClose={() => setDetail(null)} />}
+      {expandedDetail && (
+        <EntryDetail entry={expandedDetail} onClose={() => setExpandedDetail(null)} />
+      )}
     </>
   );
 }

@@ -2,7 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import { MoodResponse } from '@vibemosphere/shared';
+import { MoodResponse, sanitizeMoodTags } from '@vibemosphere/shared';
 import { createClient } from '@supabase/supabase-js';
 import crypto from 'crypto';
 
@@ -116,9 +116,10 @@ Rules:
     const responseText = result.response.text();
  
     const cleanJson = responseText.replace(/```json|```/g, "").trim();
-    const analysis: MoodResponse = JSON.parse(cleanJson);
+    const parsed: MoodResponse = JSON.parse(cleanJson);
+    parsed.stamp.moodTags = sanitizeMoodTags(parsed.stamp.moodTags);
 
-    res.json(analysis);
+    res.json(parsed);
 
   } catch (error) {
     console.error("Error analizando imagen:", error);
@@ -271,9 +272,10 @@ Rules:
 
     const responseText = result.response.text();
     const cleanJson = responseText.replace(/```json|```/g, '').trim();
-    const refined: MoodResponse = JSON.parse(cleanJson);
+    const parsed: MoodResponse = JSON.parse(cleanJson);
+    parsed.stamp.moodTags = sanitizeMoodTags(parsed.stamp.moodTags);
 
-    res.json(refined);
+    res.json(parsed);
   } catch (error) {
     console.error('Error refining vibe:', error);
     res.status(500).json({ error: 'Failed to refine vibe' });
@@ -298,6 +300,36 @@ app.get('/api/entries', async (req, res) => {
   } catch (error) {
     console.error('Error fetching entries:', error);
     res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+app.post('/api/insight', async (req, res) => {
+  try {
+    const { moodTags } = req.body as { moodTags: string[] };
+    if (!moodTags || moodTags.length < 3) {
+      return res.status(400).json({ error: 'Not enough mood data' });
+    }
+
+    const tagList = moodTags.join(', ');
+
+    const prompt = `
+You are a reflective journaling assistant.
+A user's illustrations this week generated these mood tags: ${tagList}.
+Write a single short sentence (max 12 words) that describes the emotional 
+pattern of their week. 
+Tone: warm, poetic, like a close friend noticing something.
+Do not mention the word "week". Do not use quotes.
+Only return the sentence, nothing else.
+    `.trim();
+
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+    const result = await model.generateContent(prompt);
+    const insight = result.response.text().trim();
+
+    res.json({ insight });
+  } catch (error) {
+    console.error('Insight error:', error);
+    res.status(500).json({ error: 'Failed to generate insight' });
   }
 });
 
