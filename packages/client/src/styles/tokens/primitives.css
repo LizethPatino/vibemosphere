@@ -1,0 +1,71 @@
+:root {
+  --vibe-ink-900: 38 35 33;
+  --vibe-ink-700: 88 82 76;
+  --vibe-ink-500: 118 112 106;
+  --vibe-ink-300: 180 170 158;
+
+  --vibe-paper-0: 255 255 255;
+  --vibe-paper-50: 253 251 249;
+  --vibe-paper-100: 240 237 232;
+  --vibe-paper-200: 244 243 236;
+  --vibe-paper-shell: 209 199 183;
+
+  --vibe-clay-300: 255 244 236;
+  --vibe-clay-400: 255 236 224;
+  --vibe-clay-600: 198 168 148;
+  --vibe-clay-700: 188 155 132;
+
+  --vibe-postit-400: 245 230 163;
+  --vibe-postit-600: 222 202 104;
+  --vibe-postit-fold: 222 202 104;
+
+  --vibe-warning: 160 95 35;
+  --vibe-danger: 145 48 48;
+  --vibe-ink-inverse: 255 252 248;
+  --vibe-ink-scrim: 62 52 44;
+  --vibe-ink-scrim-deep: 48 40 34;
+  --vibe-ink-toggle: 52 44 36;
+  --vibe-ink-feedback: 72 56 44;
+  --vibe-ink-footer: 110 105 98;
+  --vibe-ink-shadow-brown: 45 40 35;
+  --vibe-ink-shadow-deep: 55 45 38;
+  --vibe-ink-loading: 118 112 106;
+  --vibe-surface-wash: 255 250 245;
+  --vibe-surface-wash-soft: 255 252 248;
+  --vibe-surface-wash-muted: 255 248 240;
+  --vibe-surface-wash-field: 255 250 244;
+  --vibe-surface-wash-peach: 255 244 232;
+  --vibe-surface-wash-cream: 255 236 220;
+  --vibe-surface-wash-panel: 240 236 228;
+  --vibe-surface-shimmer: 255 253 250;
+  --vibe-surface-shimmer-mid: 245 242 238;
+  --vibe-surface-shimmer-end: 252 250 248;
+  --vibe-border-feedback: 215 198 182;
+  --vibe-border-feedback-soft: 210 192 176;
+  --vibe-border-feedback-quiet: 205 190 175;
+  --vibe-border-feedback-inner: 210 195 180;
+  --vibe-border-feedback-active: 188 165 145;
+  --vibe-border-feedback-field: 215 195 178;
+  --vibe-border-ticket-muted: 220 200 182;
+  --vibe-border-focus-alt: 200 190 175;
+  --vibe-border-focus-double: 200 175 155;
+  --vibe-focus: 200 190 180;
+  --vibe-fill-feedback-hover: 232 210 192;
+  --vibe-fill-feedback-secondary: 222 198 178;
+  --vibe-fill-feedback-muted: 168 145 125;
+  --vibe-divider-warm: 216 207 196;
+  --vibe-tape-shadow-dark: 55 95 55;
+  --vibe-tape-shadow-mid: 95 140 95;
+  --vibe-tape-shadow-hover-dark: 75 120 75;
+  --vibe-tape-shadow-hover-mid: 130 175 130;
+
+  --vibe-border-neutral: 224 224 224;
+  --vibe-grid-neutral: 229 229 229;
+  --vibe-grid-warm: 230 224 216;
+
+  --vibe-tape-green: 190 215 190;
+  --vibe-tape-green-soft: 200 220 200;
+  --vibe-star-gold: 200 168 64;
+
+  --vibe-shadow-ink: 55 42 32;
+}

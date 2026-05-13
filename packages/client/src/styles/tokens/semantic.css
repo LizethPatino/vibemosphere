@@ -1,0 +1,307 @@
+:root {
+  --font-ui: 'Quicksand', system-ui, 'Segoe UI', sans-serif;
+  --font-display: 'Playwrite CU', cursive;
+  --font-reflection: 'Lora', Georgia, 'Times New Roman', serif;
+  --font-mono: ui-monospace, Consolas, monospace;
+
+  --surface-canvas: rgb(var(--vibe-paper-shell));
+  --surface-page: rgb(var(--vibe-paper-50));
+  --surface-elevated: rgb(var(--vibe-paper-0));
+  --surface-inset: rgb(var(--vibe-paper-100));
+  --surface-emphasis: rgb(var(--vibe-postit-400));
+  --surface-code: rgb(var(--vibe-paper-200));
+  --surface-chip: rgb(255 250 245 / 0.85);
+  --surface-glass: rgb(255 252 248 / 0.92);
+  --surface-music: rgb(255 244 232 / 0.97);
+  --surface-overlay: rgb(255 255 255 / 0.5);
+  --surface-upload: rgb(216 207 196);
+  --surface-ticket-stub: rgb(210 180 140);
+  --surface-placeholder: rgb(243 243 243);
+
+  --text-primary: rgb(var(--vibe-ink-900) / 0.94);
+  --text-primary-strong: rgb(var(--vibe-ink-900) / 0.92);
+  --text-secondary: rgb(var(--vibe-ink-700) / 0.82);
+  --text-muted: rgb(var(--vibe-ink-500) / 0.72);
+  --text-muted-light: rgb(var(--vibe-ink-500) / 0.65);
+  --text-muted-softer: rgb(var(--vibe-ink-500) / 0.5);
+  --text-on-emphasis: rgb(var(--vibe-ink-900) / 0.86);
+  --text-display: rgb(61 51 40);
+  --text-placeholder: rgb(183 169 153);
+  --text-ink-deep: rgb(34 28 22 / 0.92);
+  --text-ink-deep-soft: rgb(34 28 22 / 0.88);
+  --text-ink-deep-muted: rgb(34 28 22 / 0.82);
+  --text-ink-deep-faint: rgb(34 28 22 / 0.75);
+  --text-ink-deep-subtle: rgb(34 28 22 / 0.72);
+  --text-forest: rgb(48 65 48 / 0.7);
+  --text-panel: rgb(22 30 44 / 0.78);
+  --text-brown: rgb(62 52 42 / 0.72);
+
+  --border-subtle: rgb(var(--vibe-clay-600) / 0.5);
+  --border-subtle-strong: rgb(var(--vibe-clay-600) / 0.55);
+  --border-interactive: rgb(var(--vibe-clay-600) / 0.65);
+  --border-strong: rgb(var(--vibe-clay-700) / 0.75);
+  --border-strong-focus: rgb(188 158 138 / 0.65);
+  --border-structural: rgb(var(--vibe-border-neutral));
+  --border-dashed: rgb(var(--vibe-ink-300) / 0.35);
+  --border-dashed-strong: rgb(160 155 148 / 0.4);
+  --border-ticket: rgb(215 188 168 / 0.45);
+  --border-ticket-strong: rgb(215 188 168 / 0.55);
+  --border-canvas: rgb(220 210 198 / 0.65);
+  --border-canvas-soft: rgb(220 210 198 / 0.55);
+  --border-tape: rgb(var(--vibe-tape-green) / 0.6);
+  --border-neutral-soft: rgb(232 232 232);
+
+  --fill-interactive: rgb(var(--vibe-clay-400) / 0.65);
+  --fill-interactive-hover: rgb(var(--vibe-clay-300) / 0.92);
+  --fill-tape: rgb(var(--vibe-tape-green) / 0.55);
+  --fill-tape-soft: rgb(var(--vibe-tape-green-soft) / 0.52);
+  --fill-tape-panel: rgb(184 203 184 / 0.4);
+  --fill-transparent: rgb(85 81 76 / 0);
+
+  --grid-line-neutral: rgb(var(--vibe-grid-neutral) / 0.52);
+  --grid-line-warm: rgb(var(--vibe-grid-warm) / 0.4);
+
+  --accent-decorative: rgb(var(--vibe-star-gold));
+  --accent-emotional: var(--fill-interactive);
+
+  --shadow-faint: rgb(var(--vibe-shadow-ink) / 0.04);
+  --shadow-soft: rgb(var(--vibe-shadow-ink) / 0.06);
+  --shadow-low: rgb(var(--vibe-shadow-ink) / 0.07);
+  --shadow-mid: rgb(var(--vibe-shadow-ink) / 0.08);
+  --shadow-strong: rgb(var(--vibe-shadow-ink) / 0.13);
+  --shadow-focus-ring: rgb(200 190 180 / 0.45);
+  --shadow-neutral-10: rgb(0 0 0 / 0.1);
+  --shadow-neutral-12: rgb(0 0 0 / 0.12);
+  --shadow-neutral-14: rgb(0 0 0 / 0.14);
+  --shadow-neutral-15: rgb(0 0 0 / 0.15);
+  --shadow-neutral-16: rgb(0 0 0 / 0.16);
+  --shadow-neutral-18: rgb(0 0 0 / 0.18);
+  --shadow-neutral-19: rgb(0 0 0 / 0.19);
+  --shadow-neutral-20: rgb(0 0 0 / 0.2);
+  --shadow-neutral-25: rgb(0 0 0 / 0.25);
+  --shadow-neutral-04: rgb(0 0 0 / 0.04);
+  --shadow-neutral-06: rgb(0 0 0 / 0.06);
+  --shadow-neutral-08: rgb(0 0 0 / 0.08);
+  --shadow-page: 0 10px 40px var(--shadow-neutral-15);
+  --shadow-card: 0 4px 14px var(--shadow-strong);
+  --shadow-card-hover:
+    0 2px 4px var(--shadow-soft),
+    0 6px 18px var(--shadow-mid);
+  --shadow-chip: 0 1px 3px var(--shadow-soft);
+  --shadow-chip-hover: 0 2px 6px var(--shadow-low);
+  --shadow-focus: 0 0 0 2px var(--shadow-focus-ring);
+  --shadow-polaroid: 0 5px 20px var(--shadow-neutral-20);
+  --shadow-detail: 0 20px 60px var(--shadow-neutral-25);
+  --shadow-inset-soft:
+    inset 0 1px 0 rgb(255 255 255 / 0.85),
+    inset 0 -1px 0 var(--shadow-neutral-04);
+  --shadow-inset-photo:
+    inset 0 2px 8px var(--shadow-neutral-08),
+    inset 0 10px 24px var(--shadow-neutral-04);
+  --shadow-tape-green:
+    0 5px 0 rgb(55 95 55 / 0.2),
+    0 10px 0 rgb(95 140 95 / 0.14);
+  --shadow-tape-green-hover:
+    0 4px 0 rgb(75 120 75 / 0.12),
+    0 8px 0 rgb(130 175 130 / 0.1);
+  --shadow-drop-soft: drop-shadow(1px 3px 5px var(--shadow-neutral-14));
+  --shadow-drop-medium: drop-shadow(1px 4px 6px var(--shadow-neutral-16));
+  --shadow-drop-lifted:
+    drop-shadow(0 8px 22px var(--shadow-neutral-20))
+    drop-shadow(0 2px 8px var(--shadow-neutral-10));
+  --border-perforation: rgb(180 160 140 / 0.4);
+  --border-video-ring: rgb(255 255 255 / 0.85);
+  --fill-reflection-panel: rgb(255 248 242 / 0.9);
+  --text-vibe-accent: rgb(26 42 58 / 0.9);
+  --text-narrative: rgb(58 48 40 / 0.88);
+  --text-chip-muted: rgb(110 105 98 / 0.72);
+  --text-chip-label: rgb(62 58 52 / 0.88);
+  --text-upload-muted: rgb(85 81 76 / 0.78);
+  --text-upload-strong: rgb(85 81 76 / 0.92);
+  --text-secondary-soft: rgb(var(--vibe-ink-700) / 0.75);
+  --text-muted-strong: rgb(var(--vibe-ink-500) / 0.75);
+  --text-muted-faint: rgb(var(--vibe-ink-500) / 0.62);
+  --text-muted-quiet: rgb(var(--vibe-ink-500) / 0.6);
+  --text-muted-whisper: rgb(var(--vibe-ink-500) / 0.55);
+  --text-primary-bold: rgb(var(--vibe-ink-900) / 0.9);
+  --text-primary-body: rgb(var(--vibe-ink-900) / 0.88);
+  --text-primary-scrim: rgb(var(--vibe-ink-900) / 0.55);
+  --text-inverse: rgb(var(--vibe-ink-inverse) / 0.96);
+  --text-inverse-strong: rgb(var(--vibe-ink-inverse) / 0.98);
+  --text-warning: rgb(var(--vibe-warning) / 0.92);
+  --text-danger: rgb(var(--vibe-danger) / 0.9);
+  --text-footer: rgb(var(--vibe-ink-footer) / 0.62);
+  --text-ink-shadow: rgb(var(--vibe-ink-shadow-deep) / 0.88);
+
+  --surface-chip-strong: rgb(var(--vibe-surface-wash) / 0.9);
+  --surface-chip-solid: rgb(var(--vibe-surface-wash) / 0.88);
+  --surface-field: rgb(var(--vibe-surface-wash-field) / 0.65);
+  --surface-field-muted: rgb(var(--vibe-surface-wash-muted) / 0.72);
+  --surface-field-active: rgb(var(--vibe-surface-wash-muted) / 0.98);
+  --surface-panel-muted: rgb(var(--vibe-surface-wash-panel) / 0.5);
+  --surface-scrim: rgb(var(--vibe-ink-900) / 0.55);
+  --surface-scrim-strong: rgb(var(--vibe-ink-scrim) / 0.9);
+  --surface-scrim-heavy: rgb(var(--vibe-ink-scrim-deep) / 0.95);
+  --surface-floating: rgb(var(--vibe-paper-0) / 0.72);
+  --surface-floating-strong: rgb(var(--vibe-paper-0) / 0.88);
+  --surface-ticket-peach: rgb(var(--vibe-surface-wash-peach) / 0.85);
+  --surface-feedback-selected: rgb(var(--vibe-surface-wash-cream) / 0.95);
+  --surface-insight: rgb(var(--vibe-clay-400) / 0.7);
+  --surface-insight-loading: rgb(var(--vibe-surface-wash-panel) / 0.5);
+  --surface-control: rgb(var(--vibe-surface-wash-soft) / 0.85);
+  --surface-control-hover: rgb(var(--vibe-clay-300) / 0.95);
+  --surface-toggle-track: rgb(var(--vibe-divider-warm) / 0.55);
+  --surface-toggle-thumb: rgb(var(--vibe-ink-scrim) / 0.92);
+  --surface-toggle-thumb-hover: rgb(var(--vibe-ink-toggle) / 0.96);
+  --surface-divider: rgb(var(--vibe-divider-warm) / 0.35);
+  --surface-divider-soft: rgb(var(--vibe-divider-warm) / 0.4);
+  --surface-count: rgb(var(--vibe-ink-scrim) / 0.1);
+  --surface-loading: rgb(var(--vibe-ink-loading) / 0.45);
+  --surface-postit-fold: rgb(var(--vibe-postit-fold));
+
+  --border-feedback: rgb(var(--vibe-border-feedback) / 0.75);
+  --border-feedback-soft: rgb(var(--vibe-border-feedback-soft) / 0.65);
+  --border-feedback-quiet: rgb(var(--vibe-border-feedback-quiet) / 0.65);
+  --border-feedback-inner: rgb(var(--vibe-border-feedback-inner) / 0.55);
+  --border-feedback-active: rgb(var(--vibe-border-feedback-active) / 0.75);
+  --border-feedback-selected: rgb(var(--vibe-ink-feedback) / 0.55);
+  --border-feedback-field: rgb(var(--vibe-border-feedback-field) / 0.55);
+  --border-ticket-muted: rgb(var(--vibe-border-ticket-muted) / 0.45);
+  --border-insight: rgb(var(--vibe-clay-600) / 0.45);
+  --border-expand: rgb(var(--vibe-clay-600) / 0.45);
+  --border-chip: rgb(var(--vibe-border-feedback-active) / 0.55);
+  --border-note-soft: rgb(var(--vibe-clay-600) / 0.45);
+  --border-separator-strong: rgb(var(--vibe-grid-neutral) / 0.9);
+  --border-grid-outline: rgb(var(--vibe-grid-neutral) / 0.6);
+  --border-toggle: rgb(var(--vibe-shadow-ink) / 0.35);
+  --border-focus-double: rgb(var(--vibe-border-focus-double) / 0.45);
+  --border-focus-alt: rgb(var(--vibe-border-focus-alt) / 0.45);
+  --border-focus-strong: rgb(var(--vibe-focus) / 0.55);
+
+  --fill-feedback-hover: rgb(var(--vibe-fill-feedback-hover) / 0.55);
+  --fill-feedback-secondary: rgb(var(--vibe-fill-feedback-secondary) / 0.65);
+  --fill-feedback-muted: rgb(var(--vibe-fill-feedback-muted) / 0.6);
+  --fill-highlight-warm: rgb(var(--vibe-clay-300) / 0.85);
+  --fill-tape-stripe: rgb(var(--vibe-paper-0) / 0.22);
+  --fill-shimmer: rgb(var(--vibe-paper-0) / 0.35);
+  --fill-shimmer-inset: rgb(var(--vibe-paper-0) / 0.55);
+
+  --shadow-neutral-05: rgb(var(--vibe-ink-shadow-brown) / 0.05);
+  --shadow-neutral-07: rgb(0 0 0 / 0.07);
+  --shadow-neutral-09: rgb(0 0 0 / 0.09);
+  --shadow-neutral-13: rgb(0 0 0 / 0.13);
+  --shadow-brown-07: rgb(var(--vibe-ink-shadow-brown) / 0.07);
+  --shadow-ultra-faint: rgb(var(--vibe-shadow-ink) / 0.05);
+  --shadow-ink-low: rgb(var(--vibe-shadow-ink) / 0.18);
+  --shadow-ink-mid: rgb(72 52 40 / 0.08);
+  --shadow-card-stack:
+    0 4px 14px var(--shadow-neutral-13),
+    0 1px 4px var(--shadow-neutral-07);
+  --shadow-card-focus:
+    0 0 0 3px var(--border-focus-strong),
+    0 4px 14px var(--shadow-neutral-13);
+  --shadow-floating:
+    0 1px 2px var(--shadow-neutral-05),
+    0 8px 28px var(--shadow-brown-07),
+    0 0 0 1px var(--border-grid-outline);
+  --shadow-focus-double:
+    0 0 0 2px var(--border-video-ring),
+    0 0 0 4px var(--border-focus-double);
+  --shadow-overlay-pol:
+    0 8px 26px var(--shadow-neutral-16),
+    0 2px 6px var(--shadow-neutral-08);
+  --shadow-tape-green-soft:
+    0 5px 0 rgb(var(--vibe-tape-shadow-dark) / 0.18),
+    0 10px 0 rgb(var(--vibe-tape-shadow-mid) / 0.12);
+  --shadow-tape-green-hover-soft:
+    0 4px 0 rgb(var(--vibe-tape-shadow-hover-dark) / 0.1),
+    0 8px 0 rgb(var(--vibe-tape-shadow-hover-mid) / 0.08);
+
+  --gradient-loading-veil: radial-gradient(
+    circle at 50% 50%,
+    rgb(var(--vibe-surface-shimmer) / 0.12) 0%,
+    rgb(var(--vibe-surface-shimmer-mid) / 0.1) 45%,
+    rgb(var(--vibe-surface-shimmer-end) / 0.11) 100%
+  );
+  --gradient-shimmer-line: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--fill-shimmer) 50%,
+    transparent 100%
+  );
+  --gradient-separator: linear-gradient(
+    to right,
+    transparent 0%,
+    var(--border-separator-strong) 15%,
+    var(--border-separator-strong) 85%,
+    transparent 100%
+  );
+  --gradient-postit-fold: linear-gradient(
+    225deg,
+    var(--surface-postit-fold) 50%,
+    var(--shadow-neutral-06) 50%
+  );
+  --gradient-tape-stripe: repeating-linear-gradient(
+    0deg,
+    var(--fill-tape-stripe) 0px 1px,
+    transparent 1px 4px
+  );
+  --gradient-tape-weave-a: repeating-linear-gradient(
+    135deg,
+    rgb(var(--vibe-tape-shadow-dark) / 0.2) 0 5px,
+    rgb(var(--vibe-tape-shadow-mid) / 0.14) 5px 10px
+  );
+  --gradient-tape-weave-b: repeating-linear-gradient(
+    -45deg,
+    rgb(var(--vibe-tape-shadow-hover-dark) / 0.12) 0 4px,
+    rgb(var(--vibe-tape-shadow-hover-mid) / 0.1) 4px 8px
+  );
+  --gradient-tape-weave-soft-a: repeating-linear-gradient(
+    135deg,
+    rgb(var(--vibe-tape-shadow-dark) / 0.18) 0 5px,
+    rgb(var(--vibe-tape-shadow-mid) / 0.12) 5px 10px
+  );
+  --gradient-tape-weave-soft-b: repeating-linear-gradient(
+    -45deg,
+    rgb(var(--vibe-tape-shadow-hover-dark) / 0.1) 0 4px,
+    rgb(var(--vibe-tape-shadow-hover-mid) / 0.08) 4px 8px
+  );
+  --gradient-interpret-veil: linear-gradient(
+    175deg,
+    rgb(var(--vibe-surface-shimmer) / 0.12) 0%,
+    rgb(var(--vibe-surface-shimmer-mid) / 0.1) 45%,
+    rgb(var(--vibe-surface-shimmer-end) / 0.11) 100%
+  );
+  --text-postit-emphasis: rgb(58 46 16 / 0.86);
+
+  --shadow-overlay-pol-mid: 0 7px 20px var(--shadow-neutral-13);
+  --shadow-overlay-pol-soft: 0 5px 16px var(--shadow-neutral-10);
+  --shadow-postit: 3px 5px 14px var(--shadow-neutral-13), 0 1px 4px var(--shadow-neutral-07);
+  --shadow-cta: 0 2px 8px var(--shadow-neutral-06);
+  --shadow-tape-chip: 0 1px 2px var(--shadow-neutral-09);
+
+  --state-error: rgb(var(--vibe-ink-500) / 0.72);
+  --state-loading: var(--text-muted);
+
+  --sans: var(--font-ui);
+  --heading: var(--font-display);
+  --mono: var(--font-mono);
+  --code-bg: var(--surface-code);
+
+  --result-serif: var(--font-reflection);
+  --result-text-primary: var(--text-primary);
+  --result-text-secondary: var(--text-secondary);
+  --result-text-muted: var(--text-muted);
+  --result-accent-fill: var(--fill-interactive);
+  --result-accent-fill-hover: var(--fill-interactive-hover);
+  --result-accent-border: var(--border-subtle-strong);
+  --result-accent-shadow: var(--shadow-mid);
+
+  --border: var(--border-structural);
+  --text-h: var(--text-primary);
+  --social-bg: var(--surface-chip);
+  --shadow: var(--shadow-page);
+  --accent: var(--accent-emotional);
+  --accent-bg: var(--fill-interactive);
+  --accent-border: var(--border-interactive);
+}
