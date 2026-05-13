@@ -177,6 +177,7 @@ function WeekSection({
   isFirst,
   insight,
   insightLoading,
+  onEntryClick,
 }: {
   label: string;
   weekKey: string;
@@ -184,6 +185,7 @@ function WeekSection({
   isFirst: boolean;
   insight: string | null;
   insightLoading: boolean;
+  onEntryClick: (entry: JournalEntry) => void;
 }) {
   const [expanded, setExpanded] = useState(false);
   const visible = expanded ? entries : entries.slice(0, WEEK_PREVIEW);
@@ -211,7 +213,7 @@ function WeekSection({
             key={entry.id}
             entry={entry}
             index={i}
-            onClick={() => {}}
+            onClick={() => onEntryClick(entry)}
           />
         ))}
       </div>
@@ -518,6 +520,7 @@ export function JournalScreen({ nightTexture, musicTexture, onBack }: Props) {
                       isFirst={i === 0}
                       insight={insight}
                       insightLoading={insightLoading}
+                      onEntryClick={setExpandedDetail}
                     />
                   ))}
                 </div>
