@@ -1,4 +1,11 @@
-import { useState, useEffect, type CSSProperties } from 'react';
+import {
+  memo,
+  useCallback,
+  useEffect,
+  useState,
+  type CSSProperties,
+} from 'react';
+import { createPortal } from 'react-dom';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -95,14 +102,14 @@ function groupEntriesByWeek(entries: JournalEntry[]): {
 
 // ─── Polaroid card ────────────────────────────────────────────────────────────
 
-function PolaroidCard({
+const PolaroidCard = memo(function PolaroidCard({
   entry,
   index,
-  onClick,
+  onEntryClick,
 }: {
   entry: JournalEntry;
   index: number;
-  onClick: () => void;
+  onEntryClick: (entry: JournalEntry) => void;
 }) {
   const { short, weekday } = formatEntryDate(entry.created_at);
   const { title: songTitle } = parseMusic(entry.music);
@@ -122,7 +129,7 @@ function PolaroidCard({
           animationDelay: `${index * 60}ms`,
         } as CSSProperties
       }
-      onClick={onClick}
+      onClick={() => onEntryClick(entry)}
       aria-label={`Open entry: ${displayTitle}`}
     >
       {/* Washi tape strip */}
@@ -167,11 +174,11 @@ function PolaroidCard({
       )}
     </button>
   );
-}
+});
 
 const WEEK_PREVIEW = 4;
 
-function WeekSection({
+const WeekSection = memo(function WeekSection({
   label,
   entries,
   isFirst,
@@ -213,7 +220,7 @@ function WeekSection({
             key={entry.id}
             entry={entry}
             index={i}
-            onClick={() => onEntryClick(entry)}
+            onEntryClick={onEntryClick}
           />
         ))}
       </div>
@@ -233,7 +240,7 @@ function WeekSection({
       )}
     </div>
   );
-}
+});
 
 // ─── Empty state ──────────────────────────────────────────────────────────────
 
@@ -285,6 +292,78 @@ function EmptyState({ onBack }: { onBack: () => void }) {
   );
 }
 
+const JournalEntryList = memo(function JournalEntryList({
+  loading,
+  error,
+  filtered,
+  activeTag,
+  insight,
+  insightLoading,
+  onBack,
+  onEntryClick,
+}: {
+  loading: boolean;
+  error: boolean;
+  filtered: JournalEntry[];
+  activeTag: string | null;
+  insight: string | null;
+  insightLoading: boolean;
+  onBack: () => void;
+  onEntryClick: (entry: JournalEntry) => void;
+}) {
+  if (loading) {
+    return (
+      <div className="vj-loading" aria-live="polite">
+        <span className="vj-loading__dot" />
+        <span className="vj-loading__dot" style={{ animationDelay: '0.18s' }} />
+        <span className="vj-loading__dot" style={{ animationDelay: '0.36s' }} />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <p className="vj-error">Couldn&apos;t load your journal. Check your connection and try again.</p>
+    );
+  }
+
+  if (filtered.length === 0) {
+    return <EmptyState onBack={onBack} />;
+  }
+
+  if (activeTag) {
+    return (
+      <div className="vj-grid">
+        {filtered.map((entry, i) => (
+          <PolaroidCard
+            key={entry.id}
+            entry={entry}
+            index={i}
+            onEntryClick={onEntryClick}
+          />
+        ))}
+      </div>
+    );
+  }
+
+  return (
+    <div className="vj-weeks">
+      {groupEntriesByWeek(filtered).map((group, i) => (
+        <WeekSection
+          key={group.weekKey}
+          label={group.label}
+          weekKey={group.weekKey}
+          entries={group.entries}
+          isFirst={i === 0}
+          insight={insight}
+          insightLoading={insightLoading}
+          onEntryClick={onEntryClick}
+        />
+      ))}
+    </div>
+  );
+});
+
 // ─── Detail overlay ───────────────────────────────────────────────────────────
 
 function EntryDetail({
@@ -299,7 +378,7 @@ function EntryDetail({
   const displayTitle = entry.own_title || entry.vibe_title;
   const youtubeUrl = `https://www.youtube.com/results?search_query=${encodeURIComponent(entry.music)}`;
 
-  return (
+  return createPortal(
     <div className="vjdetail-backdrop" onClick={onClose} role="dialog" aria-modal="true">
       <div className="vjdetail" onClick={(e) => e.stopPropagation()}>
         <button type="button" className="vjdetail__close" onClick={onClose} aria-label="Close">
@@ -307,7 +386,15 @@ function EntryDetail({
         </button>
 
         <div className="vjdetail__polaroid">
-          <img src={entry.image_url} alt={displayTitle} className="vjdetail__img" />
+          <div className="vjdetail__photo-stage">
+            <img
+              src={entry.image_url}
+              alt={displayTitle}
+              className="vjdetail__img"
+              loading="eager"
+              fetchPriority="high"
+            />
+          </div>
           <div className="vjdetail__chin">
             <p className="vjdetail__chin-title">{displayTitle}</p>
           </div>
@@ -351,7 +438,8 @@ function EntryDetail({
           </div>
         </a>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
 
@@ -431,6 +519,14 @@ export function JournalScreen({ nightTexture, musicTexture, onBack }: Props) {
 
   const weekday = new Intl.DateTimeFormat('en-GB', { weekday: 'long' }).format(new Date());
 
+  const handleEntryClick = useCallback((entry: JournalEntry) => {
+    setExpandedDetail(entry);
+  }, []);
+
+  const handleCloseDetail = useCallback(() => {
+    setExpandedDetail(null);
+  }, []);
+
   return (
     <>
       <div className="journal-shell">
@@ -481,50 +577,16 @@ export function JournalScreen({ nightTexture, musicTexture, onBack }: Props) {
 
           {/* Content */}
           <main className="vj-main">
-            {loading && (
-              <div className="vj-loading" aria-live="polite">
-                <span className="vj-loading__dot" />
-                <span className="vj-loading__dot" style={{ animationDelay: '0.18s' }} />
-                <span className="vj-loading__dot" style={{ animationDelay: '0.36s' }} />
-              </div>
-            )}
-
-            {error && (
-              <p className="vj-error">Couldn&apos;t load your journal. Check your connection and try again.</p>
-            )}
-
-            {!loading && !error && filtered.length === 0 && (
-              <EmptyState onBack={onBack} />
-            )}
-
-            {!loading && !error && filtered.length > 0 &&
-              (activeTag ? (
-                <div className="vj-grid">
-                  {filtered.map((entry, i) => (
-                    <PolaroidCard
-                      key={entry.id}
-                      entry={entry}
-                      index={i}
-                      onClick={() => setExpandedDetail(entry)}
-                    />
-                  ))}
-                </div>
-              ) : (
-                <div className="vj-weeks">
-                  {groupEntriesByWeek(filtered).map((group, i) => (
-                    <WeekSection
-                      key={group.weekKey}
-                      label={group.label}
-                      weekKey={group.weekKey}
-                      entries={group.entries}
-                      isFirst={i === 0}
-                      insight={insight}
-                      insightLoading={insightLoading}
-                      onEntryClick={setExpandedDetail}
-                    />
-                  ))}
-                </div>
-              ))}
+            <JournalEntryList
+              loading={loading}
+              error={error}
+              filtered={filtered}
+              activeTag={activeTag}
+              insight={insight}
+              insightLoading={insightLoading}
+              onBack={onBack}
+              onEntryClick={handleEntryClick}
+            />
           </main>
 
           {/* Footer */}
@@ -542,7 +604,7 @@ export function JournalScreen({ nightTexture, musicTexture, onBack }: Props) {
 
       {/* Detail overlay */}
       {expandedDetail && (
-        <EntryDetail entry={expandedDetail} onClose={() => setExpandedDetail(null)} />
+        <EntryDetail entry={expandedDetail} onClose={handleCloseDetail} />
       )}
     </>
   );

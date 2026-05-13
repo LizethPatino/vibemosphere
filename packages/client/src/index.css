@@ -1994,18 +1994,22 @@ code {
   position: fixed;
   inset: 0;
   z-index: 100;
-  background: var(--surface-scrim);
-  backdrop-filter: blur(3px);
+  background-color: var(--surface-scrim);
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 1.5rem;
-  animation: vjBackdropIn 0.2s ease-out both;
+  animation: vjBackdropFade 0.2s ease-out both;
 }
 
-@keyframes vjBackdropIn {
-  from { opacity: 0; }
-  to   { opacity: 1; }
+@keyframes vjBackdropFade {
+  from {
+    background-color: rgb(var(--vibe-ink-900) / 0);
+  }
+
+  to {
+    background-color: var(--surface-scrim);
+  }
 }
 
 .vjdetail {
@@ -2020,7 +2024,7 @@ code {
   background: var(--surface-page);
   border-radius: 8px 14px 10px 16px;
   box-shadow: var(--shadow-detail);
-  animation: vjDetailIn 0.28s ease-out both;
+  animation: vjDetailEaseIn 0.26s cubic-bezier(0.22, 1, 0.36, 1) both;
   background-image:
     linear-gradient(to bottom, var(--grid-line-warm) 1px, transparent 1px),
     linear-gradient(to right, var(--grid-line-warm) 1px, transparent 1px);
@@ -2029,9 +2033,16 @@ code {
   overflow-y: auto;
 }
 
-@keyframes vjDetailIn {
-  from { opacity: 0; transform: translateY(8px) scale(0.97); }
-  to   { opacity: 1; transform: translateY(0)   scale(1);    }
+@keyframes vjDetailEaseIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .vjdetail__close {
@@ -2061,6 +2072,13 @@ code {
   box-shadow: 0 5px 20px var(--shadow-neutral-15);
   transform: rotate(-0.8deg);
   width: min(60%, 180px);
+}
+
+.vjdetail__photo-stage {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1;
+  background: var(--surface-placeholder);
 }
 
 .vjdetail__img {
