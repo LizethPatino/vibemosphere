@@ -8,16 +8,16 @@ import {
 } from 'react';
 
 const PHRASES_EARLY = [
-'Finding what lives here…',
-'Letting this take shape…',
-'Listening to what it carries…',
-'Seeing what emerges…'
+  'Finding what lives here…',
+  'Letting this take shape…',
+  'Listening to what it carries…',
+  'Seeing what emerges…',
 ] as const;
 
 const PHRASES_LATE = [
-'One more moment…',
-'Almost there…',
-'Just a little longer…'
+  'One more moment…',
+  'Almost there…',
+  'Just a little longer…',
 ] as const;
 
 const LONG_LOAD_MS = 8000;
@@ -25,6 +25,11 @@ const INTERVAL_EARLY_MS = 2500;
 const INTERVAL_LATE_MS = 3200;
 const FADE_EARLY_MS = 680;
 const FADE_LATE_MS = 820;
+
+type LoadingProps = {
+  phrasesEarly?: readonly string[];
+  phrasesLate?: readonly string[];
+};
 
 const LoadingOverlay: FC<{ active: boolean }> = ({ active }) => {
   if (!active) return null;
@@ -36,7 +41,10 @@ const LoadingOverlay: FC<{ active: boolean }> = ({ active }) => {
   );
 };
 
-const LoadingRoot: FC = () => {
+const LoadingRoot: FC<LoadingProps> = ({
+  phrasesEarly = PHRASES_EARLY,
+  phrasesLate = PHRASES_LATE,
+}) => {
   const [phase, setPhase] = useState<'early' | 'late'>('early');
   const [phraseIndex, setPhraseIndex] = useState(0);
   const [secondaryOpacity, setSecondaryOpacity] = useState(1);
@@ -45,7 +53,8 @@ const LoadingRoot: FC = () => {
   const startedAtRef = useRef(Date.now());
 
   const fadeMs = phase === 'late' ? FADE_LATE_MS : FADE_EARLY_MS;
-  const phrase = phase === 'early' ? PHRASES_EARLY[phraseIndex] : PHRASES_LATE[phraseIndex];
+  const activeList = phase === 'early' ? phrasesEarly : phrasesLate;
+  const phrase = activeList[phraseIndex] ?? ' ';
 
   useEffect(() => {
     secondaryOpacityRef.current = secondaryOpacity;
@@ -75,9 +84,9 @@ const LoadingRoot: FC = () => {
       setPhase('late');
       setPhraseIndex(0);
     } else if (phase === 'early') {
-      setPhraseIndex((i) => (i + 1) % PHRASES_EARLY.length);
+      setPhraseIndex((i) => (i + 1) % phrasesEarly.length);
     } else {
-      setPhraseIndex((i) => (i + 1) % PHRASES_LATE.length);
+      setPhraseIndex((i) => (i + 1) % phrasesLate.length);
     }
 
     requestAnimationFrame(() => {

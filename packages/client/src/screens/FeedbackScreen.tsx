@@ -1,6 +1,20 @@
 import { useState } from 'react';
 import type { MoodResponse } from '@vibemosphere/shared';
+import Loading from '../components/Loading';
 import { JournalFooter } from '../components/JournalFooter';
+
+const REFINE_PHRASES_EARLY = [
+  'Looking again…',
+  'Adjusting the lens…',
+  'Finding a different angle…',
+  'Listening more carefully…',
+] as const;
+
+const REFINE_PHRASES_LATE = [
+  'Almost there…',
+  'One more moment…',
+  'Just a little longer…',
+] as const;
 
 type Props = {
   iso: string;
@@ -49,6 +63,7 @@ export function FeedbackScreen({
   return (
     <div className="journal-shell">
       <div className="journal-page journal-page--feedback">
+        <Loading.Overlay active={refining} />
         <time className="journal-date-header" dateTime={iso}>
           <span className="journal-date-header__dmy">{dmy}</span>
           <span className="journal-date-header__weekday">{weekday}</span>
@@ -112,36 +127,43 @@ export function FeedbackScreen({
                   }}
                   rows={2}
                 />
-                <button
-                  type="button"
-                  className="feedback-cta feedback-cta--secondary"
-                  disabled={refining || (!selectedChip && !refineText.trim())}
-                  onClick={async () => {
-                    const refinement = selectedChip || refineText.trim();
-                    if (!refinement) return;
+                {refining ? (
+                  <Loading
+                    phrasesEarly={REFINE_PHRASES_EARLY}
+                    phrasesLate={REFINE_PHRASES_LATE}
+                  />
+                ) : (
+                  <button
+                    type="button"
+                    className="feedback-cta feedback-cta--secondary"
+                    disabled={!selectedChip && !refineText.trim()}
+                    onClick={async () => {
+                      const refinement = selectedChip || refineText.trim();
+                      if (!refinement) return;
 
-                    setRefining(true);
-                    try {
-                      const response = await fetch('http://localhost:3001/api/refine', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                          image,
-                          currentVibe: result,
-                          refinement,
-                        }),
-                      });
-                      const newResult = await response.json();
-                      onRefined(newResult, refinement);
-                    } catch (error) {
-                      console.error('Error refining:', error);
-                    } finally {
-                      setRefining(false);
-                    }
-                  }}
-                >
-                  {refining ? 'Finding a new vibe…' : '↺ Re-generate vibe'}
-                </button>
+                      setRefining(true);
+                      try {
+                        const response = await fetch('http://localhost:3001/api/refine', {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({
+                            image,
+                            currentVibe: result,
+                            refinement,
+                          }),
+                        });
+                        const newResult = await response.json();
+                        onRefined(newResult, refinement);
+                      } catch (error) {
+                        console.error('Error refining:', error);
+                      } finally {
+                        setRefining(false);
+                      }
+                    }}
+                  >
+                    ↺ Re-generate vibe
+                  </button>
+                )}
               </div>
             )}
 
