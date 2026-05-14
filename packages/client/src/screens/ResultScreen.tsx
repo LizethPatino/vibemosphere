@@ -12,9 +12,7 @@ function stripAiMetaLabels(text: string) {
 }
 
 function vibeWhyText(result: MoodResponse) {
-  const d = result.stamp.description?.trim();
-  if (d) return stripAiMetaLabels(d);
-  return stripAiMetaLabels(result.reflection.description);
+  return stripAiMetaLabels(result.stamp.description?.trim() ?? '');
 }
 
 type Props = {

@@ -3,16 +3,9 @@ export type MoodResponse = {
     title: string;
     moodTags: string[];
     music: string;
-    color: string;
     description?: string;
   };
-  interaction: {
-    question: string;
-    adjustmentSuggestions: string[];
-  };
   reflection: {
-    description: string;
-    alternativeVibes: string[];
     quote: {
       text: string;
       author: string;
@@ -23,4 +16,3 @@ export type MoodResponse = {
 
 export { MOOD_TAGS, sanitizeMoodTags } from './moods';
 export type { MoodTag } from './moods';
-
