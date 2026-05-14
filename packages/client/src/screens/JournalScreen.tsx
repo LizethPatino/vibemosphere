@@ -39,6 +39,45 @@ function getSessionId(): string {
   return sessionId;
 }
 
+function getCurrentWeekKey(now = new Date()): string {
+  const thisMonday = new Date(now);
+  thisMonday.setDate(now.getDate() - ((now.getDay() + 6) % 7));
+  thisMonday.setHours(0, 0, 0, 0);
+  return thisMonday.toISOString().split('T')[0];
+}
+
+function buildWeekEntrySignature(entryIds: string[]): string {
+  return [...entryIds].sort().join(',');
+}
+
+function buildInsightWeekCacheKey(sessionId: string, weekKey: string): string {
+  return `vibe_insight:${sessionId}:${weekKey}`;
+}
+
+function readWeekInsightCache(
+  cacheKey: string,
+): { entrySignature: string; insight: string } | null {
+  try {
+    const raw = sessionStorage.getItem(cacheKey);
+    if (!raw) return null;
+    const data = JSON.parse(raw) as { entrySignature?: string; insight?: string };
+    if (typeof data.entrySignature !== 'string' || typeof data.insight !== 'string') {
+      return null;
+    }
+    return { entrySignature: data.entrySignature, insight: data.insight };
+  } catch {
+    return null;
+  }
+}
+
+function writeWeekInsightCache(
+  cacheKey: string,
+  entrySignature: string,
+  insight: string,
+): void {
+  sessionStorage.setItem(cacheKey, JSON.stringify({ entrySignature, insight }));
+}
+
 function formatEntryDate(iso: string): { short: string; weekday: string } {
   const d = new Date(iso);
   const dd = String(d.getDate()).padStart(2, '0');
@@ -473,37 +512,64 @@ export function JournalScreen({ nightTexture, musicTexture, onBack }: Props) {
   }, []);
 
   useEffect(() => {
-    if (entries.length < 3) return;
-    const now = new Date();
-    const thisMonday = new Date(now);
-    thisMonday.setDate(now.getDate() - ((now.getDay() + 6) % 7));
-    thisMonday.setHours(0, 0, 0, 0);
+    if (entries.length < 3) {
+      setInsight(null);
+      setInsightLoading(false);
+      return;
+    }
+
+    const weekKey = getCurrentWeekKey();
     const thisWeekEntries = entries.filter((e) => {
       const d = new Date(e.created_at);
       const entryMonday = new Date(d);
       entryMonday.setDate(d.getDate() - ((d.getDay() + 6) % 7));
       entryMonday.setHours(0, 0, 0, 0);
-      return entryMonday.getTime() === thisMonday.getTime();
+      return entryMonday.toISOString().split('T')[0] === weekKey;
     });
-    if (thisWeekEntries.length < 3) return;
-    setInsightLoading(true);
+    if (thisWeekEntries.length < 3) {
+      setInsight(null);
+      setInsightLoading(false);
+      return;
+    }
+
+    const moodTags = thisWeekEntries.flatMap((e) => e.mood_tags);
+    const entrySignature = buildWeekEntrySignature(thisWeekEntries.map((e) => e.id));
     const sessionId = getSessionId();
+    const cacheKey = buildInsightWeekCacheKey(sessionId, weekKey);
+    const cached = readWeekInsightCache(cacheKey);
+    if (cached?.entrySignature === entrySignature) {
+      setInsight(cached.insight);
+      setInsightLoading(false);
+      return;
+    }
+
+    const controller = new AbortController();
+    setInsightLoading(true);
+
     fetch('http://localhost:3001/api/insight', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'x-session-id': sessionId,
       },
-      body: JSON.stringify({
-        moodTags: thisWeekEntries.flatMap((e) => e.mood_tags),
-      }),
+      body: JSON.stringify({ moodTags }),
+      signal: controller.signal,
     })
       .then((r) => r.json())
       .then((data) => {
-        setInsight(data.insight ?? null);
+        const nextInsight = data.insight ?? null;
+        setInsight(nextInsight);
+        if (nextInsight) {
+          writeWeekInsightCache(cacheKey, entrySignature, nextInsight);
+        }
         setInsightLoading(false);
       })
-      .catch(() => setInsightLoading(false));
+      .catch((error: unknown) => {
+        if (error instanceof DOMException && error.name === 'AbortError') return;
+        setInsightLoading(false);
+      });
+
+    return () => controller.abort();
   }, [entries]);
 
   // All unique mood tags across entries
