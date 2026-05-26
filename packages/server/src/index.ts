@@ -7,6 +7,7 @@ import { createClient } from '@supabase/supabase-js';
 import crypto from 'crypto';
 
 import { ANALYZE_PROMPT } from './analyzeImagePrompt';
+import { buildRefinePrompt } from './refineImagePrompt';
 
 dotenv.config();
 
@@ -129,62 +130,17 @@ app.post('/api/entries', async (req, res) => {
 
 app.post('/api/refine', async (req, res) => {
   try {
-    const { image, currentVibe, refinement } = req.body;
+    const { image, currentVibe, refinement } = req.body as {
+      image?: string;
+      currentVibe?: MoodResponse;
+      refinement?: string;
+    };
 
     if (!image || !currentVibe || !refinement) {
       return res.status(400).json({ error: 'Missing required fields' });
     }
 
-    const prompt = `
-Act as an Emotional Interpreter for a visual journaling app.
-
-You previously analyzed an illustration and produced this emotional interpretation:
-- Title: "${currentVibe.stamp.title}"
-- Mood tags: ${currentVibe.stamp.moodTags?.join(', ')}
-- Description: "${currentVibe.stamp.description}"
-
-The user feels this interpretation needs adjustment. Their feedback is: "${refinement}"
-
-Using the same illustration and this feedback, generate a refined emotional interpretation.
-The new interpretation must feel noticeably different from the previous one in the direction the user indicated.
-
-Return the same strictly formatted JSON object as before:
-
-{
-  "stamp": {
-    "title": "Short poetic title (max 3 words)",
-    "moodTags": ["one word", "one word", "one word"],
-    "music": "Song title – Artist name",
-    "description": "One sentence (max 20 words) in the tone of a close friend gently noticing something about you. Warm, personal, slightly poetic."
-  },
-  "reflection": {
-    "quote": {
-      "text": "Meaningful short quote (max 20 words)",
-      "author": "Author or character",
-      "source": "Work title"
-    }
-  }
-}
-
-Rules:
-- moodTags must be exactly 3 single words.
-- music must be a real existing song that emotionally matches the illustration.
-- Format: "Song Title – Artist"
-- You have complete freedom to choose ANY real artist or song from ANY genre, era, or culture.
-- Your only constraint is emotional accuracy — the song must genuinely mirror the feeling of this specific illustration.
-- Think like a music curator who knows everything: classical, jazz, folk, indie, electronic, world music, latin, african, japanese, korean, brazilian, french chanson, 60s, 70s, 80s, 90s, 2000s, contemporary.
-- Consider: tempo, texture, instrumentation, lyrics (if any), and overall emotional atmosphere.
-- A slow rainy illustration might get Bill Evans, Bon Iver, or Cigarettes After Sex.
-- A bright playful illustration might get Caetano Veloso, Feist, or Vampire Weekend.
-- A melancholic illustration might get Nick Drake, Elliott Smith, or Fado.
-- A dreamy illustration might get Cocteau Twins, Beach House, or Sigur Rós.
-- These are just examples — feel free to go beyond them entirely.
-- Surprise the user with unexpected but perfect choices.
-- Never repeat the same artist for different emotional tones.
-- The recommendation should feel like it came from a friend who knows music deeply and knows you well.
-- The new title must be different from "${currentVibe.stamp.title}".
-- Only return JSON, no markdown fences or text before or after.
-`;
+    const prompt = buildRefinePrompt(currentVibe, refinement);
 
     const imageData = image.split(',')[1] || image;
     const result = await moodJsonModel.generateContent([
