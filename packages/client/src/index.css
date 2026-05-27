@@ -1038,6 +1038,20 @@ h2 {
   margin-top: 1.25rem;
 }
 
+.polaroid-upload-error {
+  position: relative;
+  z-index: 2;
+  margin: 1rem auto 0;
+  max-width: 20rem;
+  padding: 0 0.75rem;
+  font-family: var(--font-ui);
+  font-size: 0.82rem;
+  line-height: 1.55;
+  letter-spacing: 0.01em;
+  text-align: center;
+  color: var(--state-error);
+}
+
 .polaroid-submit {
   font-family: var(--font-ui);
   font-size: 1rem;
@@ -2177,14 +2191,26 @@ code {
   display: flex;
   flex-direction: column;
   gap: 0;
+  animation: vjSectionFadeIn 280ms ease both;
 }
 
 .vj-week-header {
+  position: sticky;
+  top: 0.75rem;
+  z-index: 3;
   display: flex;
   align-items: center;
   gap: 8px;
   margin-bottom: 12px;
-  padding: 0 0.5rem;
+  padding: 0.35rem 0.5rem;
+  background:
+    linear-gradient(
+      to right,
+      transparent 0%,
+      var(--surface-page) 9%,
+      var(--surface-page) 91%,
+      transparent 100%
+    );
 }
 
 .vj-week-line {
@@ -2201,6 +2227,22 @@ code {
   text-transform: uppercase;
   color: var(--text-muted-whisper);
   white-space: nowrap;
+}
+
+.vj-load-more-sentinel {
+  width: 100%;
+  height: 1px;
+}
+
+@keyframes vjSectionFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .vj-week-insight {

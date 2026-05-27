@@ -2,6 +2,8 @@ import {
   memo,
   useCallback,
   useEffect,
+  useMemo,
+  useRef,
   useState,
   type CSSProperties,
 } from 'react';
@@ -22,6 +24,14 @@ type JournalEntry = {
   own_title?: string;
 };
 
+type JournalGroup = {
+  label: string;
+  weekKey: string;
+  entries: JournalEntry[];
+  kind: 'week' | 'month';
+  monthKey: string;
+};
+
 type Props = {
   nightTexture: string;
   musicTexture: string;
@@ -39,11 +49,53 @@ function getSessionId(): string {
   return sessionId;
 }
 
+function getWeekStart(date: Date): Date {
+  const weekStart = new Date(date);
+  weekStart.setDate(date.getDate() - ((date.getDay() + 6) % 7));
+  weekStart.setHours(0, 0, 0, 0);
+  return weekStart;
+}
+
+function toLocalDateKey(date: Date): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
 function getCurrentWeekKey(now = new Date()): string {
-  const thisMonday = new Date(now);
-  thisMonday.setDate(now.getDate() - ((now.getDay() + 6) % 7));
-  thisMonday.setHours(0, 0, 0, 0);
-  return thisMonday.toISOString().split('T')[0];
+  return toLocalDateKey(getWeekStart(now));
+}
+
+function getMonthKey(date: Date): string {
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+}
+
+function formatWeekRangeLabel(weekStart: Date): string {
+  const weekEnd = new Date(weekStart);
+  weekEnd.setDate(weekStart.getDate() + 6);
+
+  const startDay = String(weekStart.getDate()).padStart(2, '0');
+  const endDay = String(weekEnd.getDate()).padStart(2, '0');
+  const startMonth = new Intl.DateTimeFormat('en-GB', { month: 'short' }).format(weekStart);
+  const endMonth = new Intl.DateTimeFormat('en-GB', { month: 'short' }).format(weekEnd);
+
+  if (weekStart.getFullYear() !== weekEnd.getFullYear()) {
+    return `${startMonth} ${startDay} ${weekStart.getFullYear()} - ${endMonth} ${endDay} ${weekEnd.getFullYear()}`;
+  }
+
+  if (weekStart.getMonth() !== weekEnd.getMonth()) {
+    return `${startMonth} ${startDay} - ${endMonth} ${endDay}`;
+  }
+
+  return `${startMonth} ${startDay} - ${endDay}`;
+}
+
+function formatMonthLabel(date: Date): string {
+  return new Intl.DateTimeFormat('en-GB', {
+    month: 'long',
+    year: 'numeric',
+  }).format(date);
 }
 
 function buildWeekEntrySignature(entryIds: string[]): string {
@@ -95,47 +147,66 @@ function parseMusic(music: string): { title: string; artist: string } {
   return { title: music, artist: '' };
 }
 
-function groupEntriesByWeek(entries: JournalEntry[]): {
-  label: string;
-  weekKey: string;
-  entries: JournalEntry[];
-}[] {
-  const groups: Record<string, JournalEntry[]> = {};
-
-  entries.forEach((entry) => {
-    const d = new Date(entry.created_at);
-    const monday = new Date(d);
-    monday.setDate(d.getDate() - ((d.getDay() + 6) % 7));
-    monday.setHours(0, 0, 0, 0);
-    const key = monday.toISOString().split('T')[0];
-    if (!groups[key]) groups[key] = [];
-    groups[key].push(entry);
-  });
+function groupEntriesForJournal(entries: JournalEntry[]): JournalGroup[] {
+  const groups: Record<
+    string,
+    { label: string; sortKey: string; entries: JournalEntry[]; kind: 'week' | 'month'; monthKey: string }
+  > = {};
 
   const now = new Date();
-  const thisMonday = new Date(now);
-  thisMonday.setDate(now.getDate() - ((now.getDay() + 6) % 7));
-  thisMonday.setHours(0, 0, 0, 0);
+  const thisWeekKey = getCurrentWeekKey(now);
+  const lastMonday = getWeekStart(now);
+  lastMonday.setDate(lastMonday.getDate() - 7);
+  const lastWeekKey = toLocalDateKey(lastMonday);
 
-  const lastMonday = new Date(thisMonday);
-  lastMonday.setDate(thisMonday.getDate() - 7);
+  entries.forEach((entry) => {
+    const entryDate = new Date(entry.created_at);
+    const weekStart = getWeekStart(entryDate);
+    const weekKey = toLocalDateKey(weekStart);
+    const monthKey = getMonthKey(entryDate);
+
+    let groupKey: string;
+    let label: string;
+    let sortKey: string;
+    let kind: 'week' | 'month';
+
+    if (weekKey === thisWeekKey) {
+      groupKey = `week:${weekKey}`;
+      label = 'this week';
+      sortKey = weekKey;
+      kind = 'week';
+    } else if (weekKey === lastWeekKey) {
+      groupKey = `week:${weekKey}`;
+      label = formatWeekRangeLabel(weekStart);
+      sortKey = weekKey;
+      kind = 'week';
+    } else {
+      groupKey = `month:${monthKey}`;
+      label = formatMonthLabel(new Date(entryDate.getFullYear(), entryDate.getMonth(), 1));
+      sortKey = `${monthKey}-01`;
+      kind = 'month';
+    }
+
+    if (!groups[groupKey]) {
+      groups[groupKey] = { label, sortKey, entries: [], kind, monthKey };
+    }
+
+    groups[groupKey].entries.push(entry);
+  });
 
   return Object.entries(groups)
-    .sort(([a], [b]) => b.localeCompare(a))
-    .map(([key, entries]) => {
-      const keyDate = new Date(key);
-      let label: string;
-      if (keyDate.getTime() === thisMonday.getTime()) {
-        label = 'this week';
-      } else if (keyDate.getTime() === lastMonday.getTime()) {
-        label = 'last week';
-      } else {
-        label = new Intl.DateTimeFormat('en-GB', {
-          month: 'long',
-          year: 'numeric',
-        }).format(keyDate);
-      }
-      return { label, weekKey: key, entries };
+    .sort(([, a], [, b]) => b.sortKey.localeCompare(a.sortKey))
+    .map(([key, group]) => {
+      const sortedEntries = [...group.entries].sort((a, b) =>
+        b.created_at.localeCompare(a.created_at)
+      );
+      return {
+        label: group.label,
+        weekKey: key,
+        entries: sortedEntries,
+        kind: group.kind,
+        monthKey: group.monthKey,
+      };
     });
 }
 
@@ -216,6 +287,7 @@ const PolaroidCard = memo(function PolaroidCard({
 });
 
 const WEEK_PREVIEW = 4;
+const JOURNAL_SCROLL_BATCH = 1;
 
 const WeekSection = memo(function WeekSection({
   label,
@@ -350,6 +422,39 @@ const JournalEntryList = memo(function JournalEntryList({
   onBack: () => void;
   onEntryClick: (entry: JournalEntry) => void;
 }) {
+  const groups = useMemo(() => groupEntriesForJournal(filtered), [filtered]);
+  const currentMonthKey = getMonthKey(new Date());
+  const initialVisibleGroupCount = useMemo(() => {
+    const firstOlderMonthIndex = groups.findIndex(
+      (group) => group.kind === 'month' && group.monthKey !== currentMonthKey
+    );
+    return firstOlderMonthIndex === -1 ? groups.length : Math.max(1, firstOlderMonthIndex);
+  }, [currentMonthKey, groups]);
+  const [visibleGroupCount, setVisibleGroupCount] = useState(initialVisibleGroupCount);
+  const loadMoreRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    setVisibleGroupCount(initialVisibleGroupCount);
+  }, [initialVisibleGroupCount]);
+
+  useEffect(() => {
+    const node = loadMoreRef.current;
+    if (!node || visibleGroupCount >= groups.length) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (!entries[0]?.isIntersecting) return;
+        setVisibleGroupCount((current) =>
+          current >= groups.length ? current : Math.min(groups.length, current + JOURNAL_SCROLL_BATCH)
+        );
+      },
+      { rootMargin: '240px 0px' }
+    );
+
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [groups.length, visibleGroupCount]);
+
   if (loading) {
     return (
       <div className="vj-loading" aria-live="polite">
@@ -387,7 +492,7 @@ const JournalEntryList = memo(function JournalEntryList({
 
   return (
     <div className="vj-weeks">
-      {groupEntriesByWeek(filtered).map((group, i) => (
+      {groups.slice(0, visibleGroupCount).map((group, i) => (
         <WeekSection
           key={group.weekKey}
           label={group.label}
@@ -399,6 +504,9 @@ const JournalEntryList = memo(function JournalEntryList({
           onEntryClick={onEntryClick}
         />
       ))}
+      {visibleGroupCount < groups.length && (
+        <div ref={loadMoreRef} className="vj-load-more-sentinel" aria-hidden="true" />
+      )}
     </div>
   );
 });
@@ -521,10 +629,7 @@ export function JournalScreen({ nightTexture, musicTexture, onBack }: Props) {
     const weekKey = getCurrentWeekKey();
     const thisWeekEntries = entries.filter((e) => {
       const d = new Date(e.created_at);
-      const entryMonday = new Date(d);
-      entryMonday.setDate(d.getDate() - ((d.getDay() + 6) % 7));
-      entryMonday.setHours(0, 0, 0, 0);
-      return entryMonday.toISOString().split('T')[0] === weekKey;
+      return toLocalDateKey(getWeekStart(d)) === weekKey;
     });
     if (thisWeekEntries.length < 3) {
       setInsight(null);

@@ -10,6 +10,7 @@ type Props = {
   musicTexture: string;
   image: string | null;
   loading: boolean;
+  uploadError: string | null;
   onImageChange: (e: ChangeEvent<HTMLInputElement>) => void;
   onAnalyze: () => void;
   onGoToJournal: () => void;
@@ -23,6 +24,7 @@ export function UploadScreen({
   musicTexture,
   image,
   loading,
+  uploadError,
   onImageChange,
   onAnalyze,
   onGoToJournal,
@@ -74,8 +76,8 @@ export function UploadScreen({
                   </>
                 ) : (
                   <div className="polaroid__placeholder">
-                    <span className="polaroid__placeholder-label">Tape your drawing here</span>
-                    <span className="polaroid__placeholder-hint">PNG, JPG, GIF · max 10MB</span>
+                    <span className="polaroid__placeholder-label">Drop your art here</span>
+                    <span className="polaroid__placeholder-hint">Images up to 10MB</span>
                   </div>
                 )}
               </label>
@@ -83,6 +85,12 @@ export function UploadScreen({
             </div>
           </div>
         </div>
+
+        {uploadError && (
+          <p className="polaroid-upload-error" role="alert">
+            {uploadError}
+          </p>
+        )}
 
         {image && (
           <>

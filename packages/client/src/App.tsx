@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useState, type ChangeEvent } from 'react';
 import type { MoodResponse } from '@vibemosphere/shared';
 import musicTexture from './assets/music-texture.png';
 import nightTexture from './assets/night-texture.png';
+import { validateIllustrationExif } from './illustrationExif';
 import { UploadScreen } from './screens/UploadScreen';
 import { ResultScreen } from './screens/ResultScreen';
 import { FeedbackScreen } from './screens/FeedbackScreen';
@@ -32,20 +33,44 @@ function App() {
   const [result, setResult] = useState<MoodResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [refinementInput, setRefinementInput] = useState('');
+  const [uploadError, setUploadError] = useState<string | null>(null);
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageChange = async (e: ChangeEvent<HTMLInputElement>) => {
+    const input = e.target;
     const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      
-      reader.onloadend = () => {
-        setImage(reader.result as string);
-        setResult(null);
-        setScreen('upload');
-      };
-      
-      reader.readAsDataURL(file);
+    if (!file) return;
+
+    const exifError = await validateIllustrationExif(file);
+    if (exifError) {
+      setImage(null);
+      setResult(null);
+      setScreen('upload');
+      setUploadError(exifError);
+      input.value = '';
+      return;
     }
+
+    setUploadError(null);
+
+    const reader = new FileReader();
+
+    reader.onloadend = () => {
+      setImage(reader.result as string);
+      setResult(null);
+      setScreen('upload');
+    };
+
+    reader.onerror = () => {
+      setImage(null);
+      setResult(null);
+      setScreen('upload');
+      setUploadError(
+        "This file didn't quite arrive as a readable illustration. Try exporting it once more, and we'll look again."
+      );
+      input.value = '';
+    };
+
+    reader.readAsDataURL(file);
   };
 
   const analyzeVibe = async () => {
@@ -114,6 +139,7 @@ function App() {
     setImage(null);
     setResult(null);
     setRefinementInput('');
+    setUploadError(null);
   };
 
   const { iso, dmy, weekday } = formatJournalDate(new Date());
@@ -172,6 +198,7 @@ function App() {
       musicTexture={musicTexture}
       image={image}
       loading={loading}
+      uploadError={uploadError}
       onImageChange={handleImageChange}
       onAnalyze={analyzeVibe}
       onGoToJournal={() => setScreen('journal')}
