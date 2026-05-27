@@ -11,8 +11,10 @@ type Props = {
   image: string | null;
   loading: boolean;
   uploadError: string | null;
+  analyzeError: { message: string } | null;
   onImageChange: (e: ChangeEvent<HTMLInputElement>) => void;
   onAnalyze: () => void;
+  onDescribeItMyself: () => void;
   onGoToJournal: () => void;
 };
 
@@ -25,8 +27,10 @@ export function UploadScreen({
   image,
   loading,
   uploadError,
+  analyzeError,
   onImageChange,
   onAnalyze,
+  onDescribeItMyself,
   onGoToJournal,
 }: Props) {
   const polaroidBusy = Boolean(image && loading);
@@ -87,9 +91,21 @@ export function UploadScreen({
         </div>
 
         {uploadError && (
-          <p className="polaroid-upload-error" role="alert">
-            {uploadError}
-          </p>
+          <div className="polaroid-upload-note" role="alert">
+            <span className="polaroid-upload-note__icon" aria-hidden="true">
+              ✦
+            </span>
+            <p className="polaroid-upload-note__text">{uploadError}</p>
+          </div>
+        )}
+
+        {analyzeError && (
+          <div className="polaroid-upload-note polaroid-upload-note--analysis" role="alert">
+            <span className="polaroid-upload-note__icon" aria-hidden="true">
+              ✦
+            </span>
+            <p className="polaroid-upload-note__text">{analyzeError.message}</p>
+          </div>
         )}
 
         {image && (
@@ -97,6 +113,19 @@ export function UploadScreen({
             <div className="polaroid-actions">
               {loading ? (
                 <Loading />
+              ) : analyzeError ? (
+                <div className="polaroid-action-stack">
+                  <button type="button" className="polaroid-submit" onClick={onAnalyze}>
+                    Try again
+                  </button>
+                  <button
+                    type="button"
+                    className="polaroid-submit polaroid-submit--secondary"
+                    onClick={onDescribeItMyself}
+                  >
+                    I&apos;ll describe it myself
+                  </button>
+                </div>
               ) : (
                 <button type="button" className="polaroid-submit" onClick={onAnalyze}>
                   Discover the vibe

@@ -27,6 +27,66 @@ const moodJsonModel = genAI.getGenerativeModel({
   generationConfig: { responseMimeType: 'application/json' },
 });
 
+function getErrorMessage(error: unknown): string {
+  return error instanceof Error ? error.message : '';
+}
+
+function getErrorStatus(error: unknown): number | null {
+  if (!error || typeof error !== 'object') return null;
+  const maybeError = error as { status?: unknown; statusCode?: unknown; code?: unknown };
+
+  for (const value of [maybeError.status, maybeError.statusCode, maybeError.code]) {
+    if (typeof value === 'number' && value >= 100 && value <= 599) return value;
+    if (typeof value === 'string' && /^\d{3}$/.test(value)) return Number(value);
+  }
+
+  const message = getErrorMessage(error);
+  const statusMatch = message.match(/\b(429|500|503|529)\b/);
+  return statusMatch ? Number(statusMatch[1]) : null;
+}
+
+function classifyAnalyzeError(error: unknown): {
+  status: number;
+  code: string;
+  error: string;
+} {
+  if (error instanceof SyntaxError) {
+    return {
+      status: 502,
+      code: 'MALFORMED_AI_RESPONSE',
+      error: 'The AI returned an invalid JSON response',
+    };
+  }
+
+  const status = getErrorStatus(error);
+  if (status === 429) {
+    return { status, code: 'AI_RATE_LIMITED', error: 'The AI service is rate limited' };
+  }
+
+  if (status === 503 || status === 529) {
+    return {
+      status,
+      code: 'AI_SERVICE_UNAVAILABLE',
+      error: 'The AI service is temporarily unavailable',
+    };
+  }
+
+  const message = getErrorMessage(error);
+  if (/rate limit|too many requests|quota/i.test(message)) {
+    return { status: 429, code: 'AI_RATE_LIMITED', error: 'The AI service is rate limited' };
+  }
+
+  if (/overloaded|unavailable|capacity|temporarily unavailable/i.test(message)) {
+    return {
+      status: 503,
+      code: 'AI_SERVICE_UNAVAILABLE',
+      error: 'The AI service is temporarily unavailable',
+    };
+  }
+
+  return { status: 500, code: 'AI_GENERATION_FAILED', error: 'Failed to analyze image' };
+}
+
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 
@@ -55,7 +115,8 @@ app.post('/api/analyze', async (req, res) => {
 
   } catch (error) {
     console.error("Error analizando imagen:", error);
-    res.status(500).json({ error: "Fallo en el cerebro de IA" });
+    const classified = classifyAnalyzeError(error);
+    res.status(classified.status).json(classified);
   }
 });
 
@@ -183,20 +244,36 @@ app.get('/api/entries', async (req, res) => {
 
 app.post('/api/insight', async (req, res) => {
   try {
-    const { moodTags } = req.body as { moodTags: string[] };
+    const {
+      moodTags,
+      periodLabel,
+      periodKind,
+    } = req.body as {
+      moodTags: string[];
+      periodLabel?: string;
+      periodKind?: 'week' | 'month';
+    };
     if (!moodTags || moodTags.length < 3) {
       return res.status(400).json({ error: 'Not enough mood data' });
     }
 
     const tagList = moodTags.join(', ');
+    const periodDescription =
+      periodKind === 'month'
+        ? periodLabel
+          ? `the period labeled "${periodLabel}"`
+          : 'this month'
+        : periodLabel
+          ? `the section labeled "${periodLabel}"`
+          : 'this week';
 
     const prompt = `
 You are a reflective journaling assistant.
-A user's illustrations this week generated these mood tags: ${tagList}.
+A user's illustrations from ${periodDescription} generated these mood tags: ${tagList}.
 Write a single short sentence (max 12 words) that describes the emotional 
-pattern of their week. 
+pattern of that period. 
 Tone: warm, poetic, like a close friend noticing something.
-Do not mention the word "week". Do not use quotes.
+Do not mention the period label literally. Do not use quotes.
 Only return the sentence, nothing else.
     `.trim();
 

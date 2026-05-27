@@ -98,15 +98,15 @@ function formatMonthLabel(date: Date): string {
   }).format(date);
 }
 
-function buildWeekEntrySignature(entryIds: string[]): string {
+function buildGroupEntrySignature(entryIds: string[]): string {
   return [...entryIds].sort().join(',');
 }
 
-function buildInsightWeekCacheKey(sessionId: string, weekKey: string): string {
-  return `vibe_insight:${sessionId}:${weekKey}`;
+function buildInsightCacheKey(sessionId: string, groupKey: string): string {
+  return `vibe_insight:${sessionId}:${groupKey}`;
 }
 
-function readWeekInsightCache(
+function readInsightCache(
   cacheKey: string,
 ): { entrySignature: string; insight: string } | null {
   try {
@@ -122,7 +122,7 @@ function readWeekInsightCache(
   }
 }
 
-function writeWeekInsightCache(
+function writeInsightCache(
   cacheKey: string,
   entrySignature: string,
   insight: string,
@@ -155,6 +155,7 @@ function groupEntriesForJournal(entries: JournalEntry[]): JournalGroup[] {
 
   const now = new Date();
   const thisWeekKey = getCurrentWeekKey(now);
+  const currentMonthKey = getMonthKey(now);
   const lastMonday = getWeekStart(now);
   lastMonday.setDate(lastMonday.getDate() - 7);
   const lastWeekKey = toLocalDateKey(lastMonday);
@@ -175,7 +176,7 @@ function groupEntriesForJournal(entries: JournalEntry[]): JournalGroup[] {
       label = 'this week';
       sortKey = weekKey;
       kind = 'week';
-    } else if (weekKey === lastWeekKey) {
+    } else if (weekKey === lastWeekKey || monthKey === currentMonthKey) {
       groupKey = `week:${weekKey}`;
       label = formatWeekRangeLabel(weekStart);
       sortKey = weekKey;
@@ -292,7 +293,6 @@ const JOURNAL_SCROLL_BATCH = 1;
 const WeekSection = memo(function WeekSection({
   label,
   entries,
-  isFirst,
   insight,
   insightLoading,
   onEntryClick,
@@ -300,7 +300,6 @@ const WeekSection = memo(function WeekSection({
   label: string;
   weekKey: string;
   entries: JournalEntry[];
-  isFirst: boolean;
   insight: string | null;
   insightLoading: boolean;
   onEntryClick: (entry: JournalEntry) => void;
@@ -314,12 +313,12 @@ const WeekSection = memo(function WeekSection({
       <div className="vj-week-header">
         <span className="vj-week-line" />
         <span className="vj-week-label">{label}</span>
-        {isFirst && insight && (
+        {insight && (
           <span className="vj-week-insight">{insight} ✦</span>
         )}
-        {isFirst && insightLoading && (
+        {insightLoading && (
           <span className="vj-week-insight vj-week-insight--loading">
-            reading the week…
+            reading this section…
           </span>
         )}
         <span className="vj-week-line" />
@@ -408,8 +407,6 @@ const JournalEntryList = memo(function JournalEntryList({
   error,
   filtered,
   activeTag,
-  insight,
-  insightLoading,
   onBack,
   onEntryClick,
 }: {
@@ -417,8 +414,6 @@ const JournalEntryList = memo(function JournalEntryList({
   error: boolean;
   filtered: JournalEntry[];
   activeTag: string | null;
-  insight: string | null;
-  insightLoading: boolean;
   onBack: () => void;
   onEntryClick: (entry: JournalEntry) => void;
 }) {
@@ -431,11 +426,30 @@ const JournalEntryList = memo(function JournalEntryList({
     return firstOlderMonthIndex === -1 ? groups.length : Math.max(1, firstOlderMonthIndex);
   }, [currentMonthKey, groups]);
   const [visibleGroupCount, setVisibleGroupCount] = useState(initialVisibleGroupCount);
+  const [insightByGroup, setInsightByGroup] = useState<
+    Record<string, { entrySignature: string; insight: string }>
+  >({});
+  const [insightLoadingByGroup, setInsightLoadingByGroup] = useState<Record<string, boolean>>({});
   const loadMoreRef = useRef<HTMLDivElement | null>(null);
+  const attemptedInsightSignaturesRef = useRef<Record<string, string>>({});
+  const insightByGroupRef = useRef(insightByGroup);
+  const insightLoadingByGroupRef = useRef(insightLoadingByGroup);
+  const visibleGroups = useMemo(
+    () => groups.slice(0, visibleGroupCount),
+    [groups, visibleGroupCount]
+  );
 
   useEffect(() => {
     setVisibleGroupCount(initialVisibleGroupCount);
   }, [initialVisibleGroupCount]);
+
+  useEffect(() => {
+    insightByGroupRef.current = insightByGroup;
+  }, [insightByGroup]);
+
+  useEffect(() => {
+    insightLoadingByGroupRef.current = insightLoadingByGroup;
+  }, [insightLoadingByGroup]);
 
   useEffect(() => {
     const node = loadMoreRef.current;
@@ -454,6 +468,73 @@ const JournalEntryList = memo(function JournalEntryList({
     observer.observe(node);
     return () => observer.disconnect();
   }, [groups.length, visibleGroupCount]);
+
+  useEffect(() => {
+    const sessionId = getSessionId();
+    visibleGroups.forEach((group) => {
+      if (group.entries.length < 3) return;
+
+      const entrySignature = buildGroupEntrySignature(group.entries.map((entry) => entry.id));
+      const existing = insightByGroupRef.current[group.weekKey];
+      if (existing?.entrySignature === entrySignature) return;
+      if (insightLoadingByGroupRef.current[group.weekKey]) return;
+
+      const cacheKey = buildInsightCacheKey(sessionId, group.weekKey);
+      const cached = readInsightCache(cacheKey);
+      if (cached?.entrySignature === entrySignature) {
+        insightByGroupRef.current = { ...insightByGroupRef.current, [group.weekKey]: cached };
+        setInsightByGroup((current) => ({ ...current, [group.weekKey]: cached }));
+        return;
+      }
+
+      if (attemptedInsightSignaturesRef.current[group.weekKey] === entrySignature) {
+        return;
+      }
+
+      attemptedInsightSignaturesRef.current[group.weekKey] = entrySignature;
+      insightLoadingByGroupRef.current = {
+        ...insightLoadingByGroupRef.current,
+        [group.weekKey]: true,
+      };
+      setInsightLoadingByGroup((current) => ({ ...current, [group.weekKey]: true }));
+
+      fetch('http://localhost:3001/api/insight', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-session-id': sessionId,
+        },
+        body: JSON.stringify({
+          moodTags: group.entries.flatMap((entry) => entry.mood_tags),
+          periodLabel: group.label,
+          periodKind: group.kind,
+        }),
+      })
+        .then((response) => response.json())
+        .then((data: { insight?: string }) => {
+          const nextInsight = data.insight?.trim();
+          if (!nextInsight) return;
+
+          const nextValue = { entrySignature, insight: nextInsight };
+          insightByGroupRef.current = {
+            ...insightByGroupRef.current,
+            [group.weekKey]: nextValue,
+          };
+          setInsightByGroup((current) => ({ ...current, [group.weekKey]: nextValue }));
+          writeInsightCache(cacheKey, entrySignature, nextInsight);
+        })
+        .catch(() => {
+          delete attemptedInsightSignaturesRef.current[group.weekKey];
+        })
+        .finally(() => {
+          insightLoadingByGroupRef.current = {
+            ...insightLoadingByGroupRef.current,
+            [group.weekKey]: false,
+          };
+          setInsightLoadingByGroup((current) => ({ ...current, [group.weekKey]: false }));
+        });
+    });
+  }, [visibleGroups]);
 
   if (loading) {
     return (
@@ -492,15 +573,14 @@ const JournalEntryList = memo(function JournalEntryList({
 
   return (
     <div className="vj-weeks">
-      {groups.slice(0, visibleGroupCount).map((group, i) => (
+      {visibleGroups.map((group) => (
         <WeekSection
           key={group.weekKey}
           label={group.label}
           weekKey={group.weekKey}
           entries={group.entries}
-          isFirst={i === 0}
-          insight={insight}
-          insightLoading={insightLoading}
+          insight={insightByGroup[group.weekKey]?.insight ?? null}
+          insightLoading={Boolean(insightLoadingByGroup[group.weekKey])}
           onEntryClick={onEntryClick}
         />
       ))}
@@ -597,8 +677,6 @@ export function JournalScreen({ nightTexture, musicTexture, onBack }: Props) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [activeTag, setActiveTag] = useState<string | null>(null);
-  const [insight, setInsight] = useState<string | null>(null);
-  const [insightLoading, setInsightLoading] = useState(false);
   const [expandedDetail, setExpandedDetail] = useState<JournalEntry | null>(null);
 
   // Fetch entries
@@ -618,64 +696,6 @@ export function JournalScreen({ nightTexture, musicTexture, onBack }: Props) {
         setLoading(false);
       });
   }, []);
-
-  useEffect(() => {
-    if (entries.length < 3) {
-      setInsight(null);
-      setInsightLoading(false);
-      return;
-    }
-
-    const weekKey = getCurrentWeekKey();
-    const thisWeekEntries = entries.filter((e) => {
-      const d = new Date(e.created_at);
-      return toLocalDateKey(getWeekStart(d)) === weekKey;
-    });
-    if (thisWeekEntries.length < 3) {
-      setInsight(null);
-      setInsightLoading(false);
-      return;
-    }
-
-    const moodTags = thisWeekEntries.flatMap((e) => e.mood_tags);
-    const entrySignature = buildWeekEntrySignature(thisWeekEntries.map((e) => e.id));
-    const sessionId = getSessionId();
-    const cacheKey = buildInsightWeekCacheKey(sessionId, weekKey);
-    const cached = readWeekInsightCache(cacheKey);
-    if (cached?.entrySignature === entrySignature) {
-      setInsight(cached.insight);
-      setInsightLoading(false);
-      return;
-    }
-
-    const controller = new AbortController();
-    setInsightLoading(true);
-
-    fetch('http://localhost:3001/api/insight', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-session-id': sessionId,
-      },
-      body: JSON.stringify({ moodTags }),
-      signal: controller.signal,
-    })
-      .then((r) => r.json())
-      .then((data) => {
-        const nextInsight = data.insight ?? null;
-        setInsight(nextInsight);
-        if (nextInsight) {
-          writeWeekInsightCache(cacheKey, entrySignature, nextInsight);
-        }
-        setInsightLoading(false);
-      })
-      .catch((error: unknown) => {
-        if (error instanceof DOMException && error.name === 'AbortError') return;
-        setInsightLoading(false);
-      });
-
-    return () => controller.abort();
-  }, [entries]);
 
   // All unique mood tags across entries
   const allTags = Array.from(new Set(entries.flatMap((e) => e.mood_tags))).sort();
@@ -753,8 +773,6 @@ export function JournalScreen({ nightTexture, musicTexture, onBack }: Props) {
               error={error}
               filtered={filtered}
               activeTag={activeTag}
-              insight={insight}
-              insightLoading={insightLoading}
               onBack={onBack}
               onEntryClick={handleEntryClick}
             />

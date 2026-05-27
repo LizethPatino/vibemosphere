@@ -1038,18 +1038,43 @@ h2 {
   margin-top: 1.25rem;
 }
 
-.polaroid-upload-error {
+.polaroid-upload-note {
   position: relative;
   z-index: 2;
   margin: 1rem auto 0;
   max-width: 20rem;
-  padding: 0 0.75rem;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 0.45rem;
+  padding: 0.65rem 0.85rem;
+  border: 1px solid var(--border-note-soft);
+  border-radius: 12px 14px 10px 13px;
+  background: var(--surface-glass);
+  box-shadow: var(--shadow-chip);
+  text-align: left;
+}
+
+.polaroid-upload-note--analysis {
+  max-width: 22rem;
+}
+
+.polaroid-upload-note__icon {
+  flex: 0 0 auto;
+  margin-top: 0.08rem;
+  font-family: var(--font-ui);
+  font-size: 0.8rem;
+  line-height: 1;
+  color: var(--text-muted);
+}
+
+.polaroid-upload-note__text {
+  margin: 0;
   font-family: var(--font-ui);
   font-size: 0.82rem;
   line-height: 1.55;
   letter-spacing: 0.01em;
-  text-align: center;
-  color: var(--state-error);
+  color: var(--text-secondary);
 }
 
 .polaroid-submit {
@@ -1067,6 +1092,24 @@ h2 {
 
 .polaroid-submit:hover:not(:disabled) {
   border-color: var(--border-strong);
+}
+
+.polaroid-submit--secondary {
+  background: transparent;
+  color: var(--text-muted-strong);
+  box-shadow: none;
+}
+
+.polaroid-submit--secondary:hover:not(:disabled) {
+  background: var(--fill-interactive-hover);
+  border-color: var(--border-structural);
+}
+
+.polaroid-action-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  align-items: center;
 }
 
 .vibe-why {
@@ -2203,14 +2246,6 @@ code {
   gap: 8px;
   margin-bottom: 12px;
   padding: 0.35rem 0.5rem;
-  background:
-    linear-gradient(
-      to right,
-      transparent 0%,
-      var(--surface-page) 9%,
-      var(--surface-page) 91%,
-      transparent 100%
-    );
 }
 
 .vj-week-line {

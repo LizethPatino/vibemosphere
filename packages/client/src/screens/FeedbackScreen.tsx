@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { MoodResponse } from '@vibemosphere/shared';
 import Loading from '../components/Loading';
 import { JournalFooter } from '../components/JournalFooter';
@@ -33,6 +33,7 @@ type Props = {
   ) => Promise<void>;
   onRefined: (newResult: MoodResponse, input: string) => void;
   refinementInput: string;
+  manualOnly?: boolean;
   onGoToJournal: () => void;
 };
 
@@ -48,9 +49,10 @@ export function FeedbackScreen({
   onSave,
   onRefined,
   refinementInput,
+  manualOnly = false,
   onGoToJournal,
 }: Props) {
-  const [selected, setSelected] = useState<'yes' | 'refine' | 'own' | null>(null);
+  const [selected, setSelected] = useState<'yes' | 'refine' | 'own' | null>(manualOnly ? 'own' : null);
   const [refineText, setRefineText] = useState('');
   const [ownText, setOwnText] = useState('');
   const [note, setNote] = useState('');
@@ -59,6 +61,12 @@ export function FeedbackScreen({
   const [selectedChip, setSelectedChip] = useState<string | null>(null);
   const [refining, setRefining] = useState(false);
   const CHAR_LIMIT = 120;
+
+  useEffect(() => {
+    if (manualOnly) {
+      setSelected('own');
+    }
+  }, [manualOnly]);
 
   return (
     <div className="journal-shell">
@@ -72,34 +80,42 @@ export function FeedbackScreen({
         <div className="night-scrap-paper" style={{ backgroundImage: `url(${nightTexture})` }} aria-hidden />
 
         <div className="feedback-screen">
-          <p className="feedback-question">Does this capture how you feel today?</p>
+          <p className="feedback-question">
+            {manualOnly
+              ? "If the mirror is quiet today, what would you call this feeling?"
+              : 'Does this capture how you feel today?'}
+          </p>
 
-          <div className="feedback-vibe-chip">✦ {result.stamp.title}</div>
+          {!manualOnly && <div className="feedback-vibe-chip">✦ {result.stamp.title}</div>}
 
           <div className="feedback-options">
-            <div
-              className={`feedback-opt${selected === 'yes' ? ' feedback-opt--sel' : ''}`}
-              onClick={() => setSelected('yes')}
-            >
-              <span className="feedback-opt__icon">💛</span>
-              <div className="feedback-opt__body">
-                <p className="feedback-opt__title">Yes, that&apos;s exactly it</p>
-                <p className="feedback-opt__desc">Save this vibe as is</p>
+            {!manualOnly && (
+              <div
+                className={`feedback-opt${selected === 'yes' ? ' feedback-opt--sel' : ''}`}
+                onClick={() => setSelected('yes')}
+              >
+                <span className="feedback-opt__icon">💛</span>
+                <div className="feedback-opt__body">
+                  <p className="feedback-opt__title">Yes, that&apos;s exactly it</p>
+                  <p className="feedback-opt__desc">Save this vibe as is</p>
+                </div>
               </div>
-            </div>
+            )}
 
-            <div
-              className={`feedback-opt${selected === 'refine' ? ' feedback-opt--sel' : ''}`}
-              onClick={() => setSelected('refine')}
-            >
-              <span className="feedback-opt__icon">🌿</span>
-              <div className="feedback-opt__body">
-                <p className="feedback-opt__title">Close, let&apos;s refine it</p>
-                <p className="feedback-opt__desc">Tell the AI what to adjust</p>
+            {!manualOnly && (
+              <div
+                className={`feedback-opt${selected === 'refine' ? ' feedback-opt--sel' : ''}`}
+                onClick={() => setSelected('refine')}
+              >
+                <span className="feedback-opt__icon">🌿</span>
+                <div className="feedback-opt__body">
+                  <p className="feedback-opt__title">Close, let&apos;s refine it</p>
+                  <p className="feedback-opt__desc">Tell the AI what to adjust</p>
+                </div>
               </div>
-            </div>
+            )}
 
-            {selected === 'refine' && (
+            {!manualOnly && selected === 'refine' && (
               <div className="feedback-panel">
                 <p className="feedback-panel__label">What&apos;s off?</p>
                 <div className="feedback-refine-chips">
@@ -218,7 +234,7 @@ export function FeedbackScreen({
           <button
             type="button"
             className="feedback-cta"
-            disabled={saving || saved || !selected}
+            disabled={saving || saved || !selected || (selected === 'own' && !ownText.trim())}
             onClick={async () => {
               if (!selected) return;
               setSaving(true);

@@ -8,6 +8,148 @@ import { ResultScreen } from './screens/ResultScreen';
 import { FeedbackScreen } from './screens/FeedbackScreen';
 import { JournalScreen } from './screens/JournalScreen';
 
+const ANALYZE_ENDPOINT = 'http://localhost:3001/api/analyze';
+const TRANSIENT_RETRY_DELAYS_MS = [1000, 3000] as const;
+const TRANSIENT_ERROR_MESSAGE =
+  "Couldn't read this one right now. Sometimes the mirror clouds over. Want to try again?";
+const SERVICE_UNAVAILABLE_MESSAGE =
+  "The mirror is resting right now. This isn't your drawing — it's us. Try again in a few minutes.";
+const RATE_LIMIT_MESSAGE = 'A lot of vibes coming through right now. Try in a moment.';
+const OFFLINE_MESSAGE = "You're offline. Reconnect and try again.";
+
+const EMPTY_RESULT: MoodResponse = {
+  stamp: {
+    title: '',
+    moodTags: [],
+    music: '',
+    description: '',
+  },
+  reflection: {
+    quote: {
+      text: '',
+      author: '',
+      source: '',
+    },
+  },
+};
+
+type AnalyzeErrorKind = 'transient' | 'serviceUnavailable' | 'rateLimit' | 'offline';
+
+type AnalyzeErrorState = {
+  kind: AnalyzeErrorKind;
+  message: string;
+};
+
+type AnalyzeRequestFailureKind =
+  | AnalyzeErrorKind
+  | 'malformedResponse';
+
+type AnalyzeRequestFailure = {
+  kind: AnalyzeRequestFailureKind;
+};
+
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => window.setTimeout(resolve, ms));
+}
+
+function isOffline(): boolean {
+  return typeof navigator !== 'undefined' && navigator.onLine === false;
+}
+
+function toAnalyzeErrorState(kind: AnalyzeErrorKind): AnalyzeErrorState {
+  switch (kind) {
+    case 'serviceUnavailable':
+      return { kind, message: SERVICE_UNAVAILABLE_MESSAGE };
+    case 'rateLimit':
+      return { kind, message: RATE_LIMIT_MESSAGE };
+    case 'offline':
+      return { kind, message: OFFLINE_MESSAGE };
+    default:
+      return { kind: 'transient', message: TRANSIENT_ERROR_MESSAGE };
+  }
+}
+
+function isAnalyzeRequestFailure(error: unknown): error is AnalyzeRequestFailure {
+  return Boolean(
+    error &&
+      typeof error === 'object' &&
+      'kind' in error &&
+      typeof (error as { kind?: unknown }).kind === 'string'
+  );
+}
+
+async function requestAnalyze(image: string): Promise<MoodResponse> {
+  const controller = new AbortController();
+  const timeoutId = window.setTimeout(() => controller.abort(), 20000);
+
+  try {
+    const response = await fetch(ANALYZE_ENDPOINT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ image }),
+      signal: controller.signal,
+    });
+
+    const raw = await response.text();
+    let payload: unknown = null;
+
+    if (raw) {
+      try {
+        payload = JSON.parse(raw);
+      } catch {
+        throw { kind: 'malformedResponse' } satisfies AnalyzeRequestFailure;
+      }
+    }
+
+    if (!response.ok) {
+      const code =
+        payload && typeof payload === 'object' && 'code' in payload
+          ? (payload as { code?: unknown }).code
+          : null;
+
+      if (code === 'MALFORMED_AI_RESPONSE') {
+        throw { kind: 'malformedResponse' } satisfies AnalyzeRequestFailure;
+      }
+
+      if (response.status === 429) {
+        throw { kind: 'rateLimit' } satisfies AnalyzeRequestFailure;
+      }
+
+      if (response.status === 503 || response.status === 529) {
+        throw { kind: 'serviceUnavailable' } satisfies AnalyzeRequestFailure;
+      }
+
+      throw { kind: 'transient' } satisfies AnalyzeRequestFailure;
+    }
+
+    if (!payload || typeof payload !== 'object') {
+      throw { kind: 'malformedResponse' } satisfies AnalyzeRequestFailure;
+    }
+
+    return payload as MoodResponse;
+  } catch (error) {
+    if (isAnalyzeRequestFailure(error)) {
+      throw error;
+    }
+
+    if (isOffline()) {
+      throw { kind: 'offline' } satisfies AnalyzeRequestFailure;
+    }
+
+    if (error instanceof DOMException && error.name === 'AbortError') {
+      throw { kind: 'transient' } satisfies AnalyzeRequestFailure;
+    }
+
+    if (error instanceof TypeError) {
+      throw { kind: 'transient' } satisfies AnalyzeRequestFailure;
+    }
+
+    throw { kind: 'transient' } satisfies AnalyzeRequestFailure;
+  } finally {
+    window.clearTimeout(timeoutId);
+  }
+}
+
 function formatJournalDate(now: Date) {
   const dd = String(now.getDate()).padStart(2, '0');
   const mm = String(now.getMonth() + 1).padStart(2, '0');
@@ -34,6 +176,8 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [refinementInput, setRefinementInput] = useState('');
   const [uploadError, setUploadError] = useState<string | null>(null);
+  const [analyzeError, setAnalyzeError] = useState<AnalyzeErrorState | null>(null);
+  const [manualOnly, setManualOnly] = useState(false);
 
   const handleImageChange = async (e: ChangeEvent<HTMLInputElement>) => {
     const input = e.target;
@@ -46,11 +190,15 @@ function App() {
       setResult(null);
       setScreen('upload');
       setUploadError(exifError);
+      setAnalyzeError(null);
+      setManualOnly(false);
       input.value = '';
       return;
     }
 
     setUploadError(null);
+    setAnalyzeError(null);
+    setManualOnly(false);
 
     const reader = new FileReader();
 
@@ -67,6 +215,8 @@ function App() {
       setUploadError(
         "This file didn't quite arrive as a readable illustration. Try exporting it once more, and we'll look again."
       );
+      setAnalyzeError(null);
+      setManualOnly(false);
       input.value = '';
     };
 
@@ -75,21 +225,71 @@ function App() {
 
   const analyzeVibe = async () => {
     if (!image) return;
-    
-    setLoading(true);
-    try {
-      const response = await fetch('http://localhost:3001/api/analyze', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ image })
-      });
 
-      const data = await response.json();
-      setResult(data);
-      setScreen('result');
+    if (isOffline()) {
+      setAnalyzeError(toAnalyzeErrorState('offline'));
+      return;
+    }
+
+    setLoading(true);
+    setAnalyzeError(null);
+    setUploadError(null);
+    try {
+      let transientFailures = 0;
+      let malformedFailures = 0;
+
+      while (true) {
+        try {
+          const data = await requestAnalyze(image);
+          setResult(data);
+          setManualOnly(false);
+          setScreen('result');
+          return;
+        } catch (error) {
+          if (!isAnalyzeRequestFailure(error)) {
+            setAnalyzeError(toAnalyzeErrorState('transient'));
+            return;
+          }
+
+          if (error.kind === 'offline') {
+            setAnalyzeError(toAnalyzeErrorState('offline'));
+            return;
+          }
+
+          if (error.kind === 'rateLimit') {
+            setAnalyzeError(toAnalyzeErrorState('rateLimit'));
+            return;
+          }
+
+          if (error.kind === 'serviceUnavailable') {
+            setAnalyzeError(toAnalyzeErrorState('serviceUnavailable'));
+            return;
+          }
+
+          if (error.kind === 'malformedResponse') {
+            if (malformedFailures < 1) {
+              malformedFailures += 1;
+              continue;
+            }
+
+            setAnalyzeError(toAnalyzeErrorState('transient'));
+            return;
+          }
+
+          if (transientFailures < TRANSIENT_RETRY_DELAYS_MS.length) {
+            const delay = TRANSIENT_RETRY_DELAYS_MS[transientFailures];
+            transientFailures += 1;
+            await sleep(delay);
+            continue;
+          }
+
+          setAnalyzeError(toAnalyzeErrorState('transient'));
+          return;
+        }
+      }
     } catch (error) {
       console.error("Connection error:", error);
-      alert("Something went wrong. Please try again.");
+      setAnalyzeError(toAnalyzeErrorState('transient'));
     } finally {
       setLoading(false);
     }
@@ -126,11 +326,24 @@ function App() {
     }
   };
 
-  const handleGoToFeedback = () => setScreen('feedback');
+  const handleGoToFeedback = () => {
+    setManualOnly(false);
+    setAnalyzeError(null);
+    setScreen('feedback');
+  };
+
+  const handleDescribeItMyself = () => {
+    if (!image) return;
+    setAnalyzeError(null);
+    setManualOnly(true);
+    setResult(EMPTY_RESULT);
+    setScreen('feedback');
+  };
 
   const handleRefined = (newResult: MoodResponse, input: string) => {
     setResult(newResult);
     setRefinementInput(input);
+    setManualOnly(false);
     setScreen('result');
   };
 
@@ -140,6 +353,8 @@ function App() {
     setResult(null);
     setRefinementInput('');
     setUploadError(null);
+    setAnalyzeError(null);
+    setManualOnly(false);
   };
 
   const { iso, dmy, weekday } = formatJournalDate(new Date());
@@ -174,6 +389,7 @@ function App() {
         onSave={saveEntry}
         onRefined={handleRefined}
         refinementInput={refinementInput}
+        manualOnly={manualOnly}
         onGoToJournal={() => setScreen('journal')}
       />
     );
@@ -199,8 +415,10 @@ function App() {
       image={image}
       loading={loading}
       uploadError={uploadError}
+      analyzeError={analyzeError}
       onImageChange={handleImageChange}
       onAnalyze={analyzeVibe}
+      onDescribeItMyself={handleDescribeItMyself}
       onGoToJournal={() => setScreen('journal')}
     />
   );
