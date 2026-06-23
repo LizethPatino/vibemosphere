@@ -22,12 +22,6 @@ Music:       ${currentVibe.stamp.music}
 Description: "${currentVibe.stamp.description ?? ''}"
 
 ────────────────────────────────────────
-USER FEEDBACK
-────────────────────────────────────────
-
-"${refinement}"
-
-────────────────────────────────────────
 STEP 1 — DIAGNOSE THE FEEDBACK
 ────────────────────────────────────────
 
@@ -196,12 +190,21 @@ match the (possibly revised) hypothesis.
 
 MUSIC — real song, real artist, both independently
 verifiable. Format: "Song Title – Artist". Prefer
-contemporary (last 25 years). Do NOT default to Bon Iver,
-Sigur Rós, Satie, Einaudi, Max Richter, Sufjan Stevens.
-Pivot toward contemporary artists with large, well-
-documented catalogs: global pop and R&B, contemporary
-Latin, K-pop/J-pop from major agencies, contemporary
-hip-hop. Quiet does not equal indie-quiet defaults.
+contemporary (last 25 years). Pivot toward contemporary
+artists with large, well-documented catalogs: global pop
+and R&B, contemporary Latin, K-pop/J-pop from major
+agencies, contemporary hip-hop. Quiet does not equal
+indie-quiet defaults.
+
+HARD BLOCKLIST — these are forbidden defaults, never use them:
+Sleeping at Last, Bon Iver, Sigur Rós, Erik Satie, Ludovico
+Einaudi, Max Richter, Sufjan Stevens, Ólafur Arnalds, Nils
+Frahm, Iron & Wine, The Paper Kites, Novo Amor, Hozier
+("Cherry Wine"), Phoebe Bridgers ("Motion Sickness" or
+"Funeral"), Fleet Foxes, Daughter, Lord Huron ("The Night
+We Met"), Cigarettes After Sex.
+If your first instinct lands on any of these, you are
+pattern-matching. Choose again from a different artist.
 
 If the music is being changed, it must be a DIFFERENT
 artist from "${currentVibe.stamp.music}". Do not repeat
@@ -211,6 +214,29 @@ QUOTE — real, exact, verifiable. Adds a NEW angle to
 the feeling, not a restatement. Skip the most-cited line
 from any famous source. Wall-decal test: if it could be
 a wall decal or sunset-photo caption, choose differently.
+
+HARD BLOCKLIST — never quote from these works or these lines:
+  - The Little Prince (Antoine de Saint-Exupéry) — any line.
+    "It is only with the heart that one can see rightly"
+    is forbidden.
+  - Rumi — any translation, any line.
+  - Mary Oliver — "Wild Geese", "you do not have to be good",
+    "your one wild and precious life".
+  - Rilke — "Letters to a Young Poet" most-cited passages.
+  - Rupi Kaur — any line.
+  - Maya Angelou — "And still, I rise", "people will forget
+    what you said but never how you made them feel".
+  - Khalil Gibran — "The Prophet" most-cited passages.
+  - Hafiz — any line.
+  - Anaïs Nin — "we don't see things as they are, we see them
+    as we are", "and the day came when the risk to remain tight
+    in a bud".
+  - Brené Brown — any line about vulnerability or shame.
+  - Charles Bukowski — "find what you love and let it kill you".
+  - Marcus Aurelius — "you have power over your mind".
+  - Lao Tzu — "a journey of a thousand miles".
+If your first instinct lands on any of these, the quote is
+overused. Choose a different author entirely.
 
 TITLE — max 3 words. Names this specific atmosphere,
 not generic categories. Could ONLY belong to this drawing.
@@ -232,6 +258,9 @@ form one atmosphere:
   3. Does the description's named feeling match the tags?
   4. Could the title only belong to this drawing?
   5. Does the quote add a new angle?
+  6. Is the song from the music HARD BLOCKLIST, or the
+     quote from the quote HARD BLOCKLIST? If yes → choose
+     differently. No exceptions.
 
 If any check fails, fix that field. Do not weaken the
 hypothesis to accommodate a weak field.

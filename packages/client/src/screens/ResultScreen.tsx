@@ -122,13 +122,17 @@ export function ResultScreen({
           <Divider />
 
           <div className="result-bottom">
+            {result.stamp.music !== '__unvalidated__' && (
             <section className="result-music" aria-label="Music suggestion">
               <a
                 className="result-music__ticket"
-                href={`https://www.youtube.com/results?search_query=${encodeURIComponent(result.stamp.music)}`}
+                href={
+                  result.stamp.musicUrl ??
+                  `https://open.spotify.com/search/${encodeURIComponent(result.stamp.music)}`
+                }
                 target="_blank"
                 rel="noopener noreferrer"
-                aria-label={`Listen to ${result.stamp.music} on YouTube`}
+                aria-label={`Listen to ${result.stamp.music} on Spotify`}
               >
                 <div className="result-music__stub">
                   <span className="result-music__stub-note">♪</span>
@@ -154,7 +158,7 @@ export function ResultScreen({
                   <div className="result-music__footer">
                     <span className="result-music__admit">Admit one · open in</span>
                     <span className="result-music__yt">
-                      YouTube
+                      Spotify
                       <svg
                         viewBox="0 0 24 24"
                         width="8"
@@ -175,6 +179,7 @@ export function ResultScreen({
                 </div>
               </a>
             </section>
+            )}
 
             <button type="button" className="result-next-cta" onClick={onGoToFeedback}>
               Does this feel right? →

@@ -8,6 +8,7 @@ import crypto from 'crypto';
 
 import { ANALYZE_PROMPT } from './analyzeImagePrompt';
 import { buildRefinePrompt } from './refineImagePrompt';
+import { validateMusic } from './spotifyValidator';
 
 dotenv.config();
 
@@ -110,6 +111,13 @@ app.post('/api/analyze', async (req, res) => {
       result.response.text().trim()
     ) as MoodResponse;
     parsed.stamp.moodTags = sanitizeMoodTags(parsed.stamp.moodTags);
+    const validatedMusic = await validateMusic(parsed.stamp.music);
+    if (validatedMusic) {
+      parsed.stamp.music = validatedMusic.label;
+      parsed.stamp.musicUrl = validatedMusic.url;
+    } else {
+      parsed.stamp.music = '__unvalidated__';
+    }
 
     res.json(parsed);
 
@@ -165,6 +173,7 @@ app.post('/api/entries', async (req, res) => {
         vibe_title: feedback?.ownTitle || vibeData.stamp.title,
         mood_tags: vibeData.stamp.moodTags || [],
         music: vibeData.stamp.music || null,
+        music_url: vibeData.stamp.musicUrl || null,
         why_text: vibeData.stamp.description || null,
         quote_text: vibeData.reflection?.quote?.text || null,
         quote_author: vibeData.reflection?.quote?.author || null,
@@ -213,6 +222,13 @@ app.post('/api/refine', async (req, res) => {
       result.response.text().trim()
     ) as MoodResponse;
     parsed.stamp.moodTags = sanitizeMoodTags(parsed.stamp.moodTags);
+    const validatedMusic = await validateMusic(parsed.stamp.music);
+    if (validatedMusic) {
+      parsed.stamp.music = validatedMusic.label;
+      parsed.stamp.musicUrl = validatedMusic.url;
+    } else {
+      parsed.stamp.music = '__unvalidated__';
+    }
 
     res.json(parsed);
   } catch (error) {

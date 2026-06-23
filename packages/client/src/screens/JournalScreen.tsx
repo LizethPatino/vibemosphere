@@ -18,6 +18,7 @@ type JournalEntry = {
   vibe_title: string;
   mood_tags: string[];
   music: string;
+  music_url?: string;
   why_text: string;
   feedback_type: 'yes' | 'refined' | 'own';
   personal_note?: string;
@@ -603,7 +604,9 @@ function EntryDetail({
   const { short, weekday } = formatEntryDate(entry.created_at);
   const { title: songTitle, artist } = parseMusic(entry.music);
   const displayTitle = entry.own_title || entry.vibe_title;
-  const youtubeUrl = `https://www.youtube.com/results?search_query=${encodeURIComponent(entry.music)}`;
+  const spotifyUrl =
+    entry.music_url ??
+    `https://open.spotify.com/search/${encodeURIComponent(entry.music)}`;
 
   return createPortal(
     <div className="vjdetail-backdrop" onClick={onClose} role="dialog" aria-modal="true">
@@ -642,13 +645,13 @@ function EntryDetail({
           {entry.personal_note && <p className="vjdetail__note">&quot;{entry.personal_note}&quot;</p>}
         </div>
 
-        {/* Music ticket */}
+        {entry.music && entry.music !== '__unvalidated__' && (
         <a
           className="vjdetail__ticket result-music__ticket"
-          href={youtubeUrl}
+          href={spotifyUrl}
           target="_blank"
           rel="noopener noreferrer"
-          aria-label={`Open ${entry.music} on YouTube`}
+          aria-label={`Open ${entry.music} on Spotify`}
         >
           <div className="result-music__stub">
             <span className="result-music__stub-note">♪</span>
@@ -660,10 +663,11 @@ function EntryDetail({
             {artist && <p className="result-music__artist">{artist}</p>}
             <div className="result-music__footer">
               <span className="result-music__admit">Admit one · open in</span>
-              <span className="result-music__yt">YouTube ↗</span>
+              <span className="result-music__yt">Spotify ↗</span>
             </div>
           </div>
         </a>
+        )}
       </div>
     </div>,
     document.body,

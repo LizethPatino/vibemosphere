@@ -3,6 +3,7 @@ export type MoodResponse = {
     title: string;
     moodTags: string[];
     music: string;
+    musicUrl?: string;
     description?: string;
   };
   reflection: {

@@ -490,6 +490,17 @@ prescriptive list):
 These territories are simultaneously contemporary AND
 high-certainty. You can be both fresh and accurate.
 
+HARD BLOCKLIST — these are forbidden defaults, never use them:
+Sleeping at Last, Bon Iver, Sigur Rós, Erik Satie, Ludovico
+Einaudi, Max Richter, Sufjan Stevens, Ólafur Arnalds, Nils
+Frahm, Iron & Wine, The Paper Kites, Novo Amor, Hozier
+("Cherry Wine"), Phoebe Bridgers ("Motion Sickness" or
+"Funeral"), Fleet Foxes, Daughter, Lord Huron ("The Night
+We Met"), Cigarettes After Sex.
+If your first instinct lands on any of these, you are
+pattern-matching, not interpreting. Choose again from a
+different artist entirely.
+
 VARIETY ACROSS THE SESSION
 
   - Do not anchor on the same artist or genre across multiple
@@ -570,6 +581,31 @@ and motivational tweets have lost their ability to surprise.
     can imagine it as a wall decal or as the caption of a
     sunset photo, it is overused.
 
+HARD BLOCKLIST — never quote from these works or these lines:
+  - The Little Prince (Antoine de Saint-Exupéry) — any line.
+    "It is only with the heart that one can see rightly"
+    is forbidden.
+  - Rumi — any translation, any line.
+  - Mary Oliver — "Wild Geese", "you do not have to be good",
+    "your one wild and precious life".
+  - Rilke — "Letters to a Young Poet" most-cited passages
+    (live the questions, be patient toward all that is unsolved).
+  - Rupi Kaur — any line.
+  - Maya Angelou — "And still, I rise", "people will forget
+    what you said but never how you made them feel".
+  - Khalil Gibran — "The Prophet" most-cited passages.
+  - Hafiz — any line.
+  - Anaïs Nin — "we don't see things as they are, we see them
+    as we are", "and the day came when the risk to remain tight
+    in a bud".
+  - Brené Brown — any line about vulnerability or shame.
+  - Charles Bukowski — "find what you love and let it kill you".
+  - Marcus Aurelius — "you have power over your mind".
+  - Lao Tzu — "a journey of a thousand miles".
+
+If your first instinct lands on any of these, the quote is
+overused. Choose a different author entirely.
+
 
 ────────────────────────────────────────
 title — max 3 words. The name of THIS atmosphere.
@@ -633,6 +669,11 @@ in order. Each one is a yes/no check.
      Does the quote add a NEW angle to the feeling, or
      does it restate what the description already said?
      If restating → choose another quote.
+
+  6. BLOCKLIST CHECK
+     Is the song from the music HARD BLOCKLIST, or the
+     quote from the quote HARD BLOCKLIST?
+     If yes → choose differently. No exceptions.
 
 If any check fails, fix that field. Do not weaken the
 hypothesis to accommodate a weak field — fix the field
