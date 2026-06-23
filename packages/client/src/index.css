@@ -1371,7 +1371,6 @@ code {
   background: var(--code-bg);
 }
 
-/* --- Feedback screen & result tweaks (additive; does not modify rules above) --- */
 
 .journal-page--feedback {
   background-color: var(--surface-page);
@@ -1742,16 +1741,11 @@ code {
   color: var(--text-chip-label);
 }
 
-/* ============================================================
-   VIBE JOURNAL SCREEN  —  append to the bottom of index.css
-   ============================================================ */
 
-/* Page variant */
 .journal-page--vj {
   padding-bottom: 2.5rem;
 }
 
-/* ── Header ─────────────────────────────────────────────── */
 .vj-header {
   position: relative;
   z-index: 4;
@@ -1773,7 +1767,6 @@ code {
   color: var(--text-muted-faint);
 }
 
-/* ── Filter chips ────────────────────────────────────────── */
 .vj-filters {
   position: relative;
   z-index: 4;
@@ -1822,7 +1815,6 @@ code {
   color: var(--text-inverse-strong);
 }
 
-/* ── Main content area ───────────────────────────────────── */
 .vj-main {
   position: relative;
   z-index: 3;
@@ -1833,7 +1825,6 @@ code {
   flex-direction: column;
 }
 
-/* ── Polaroid grid ───────────────────────────────────────── */
 .vj-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -1841,7 +1832,6 @@ code {
   padding: 0.25rem 0.5rem 1rem;
 }
 
-/* ── Polaroid card ───────────────────────────────────────── */
 .vjcard {
   position: relative;
   display: flex;
@@ -1886,7 +1876,6 @@ code {
   }
 }
 
-/* Washi tape strip */
 .vjcard__tape {
   position: absolute;
   top: -9px;
@@ -1904,7 +1893,6 @@ code {
   pointer-events: none;
 }
 
-/* Photo area */
 .vjcard__photo-wrap {
   width: 100%;
   aspect-ratio: 1;
@@ -1921,7 +1909,6 @@ code {
   display: block;
 }
 
-/* Chin strip */
 .vjcard__chin {
   width: 100%;
   padding: 0.4rem 0.1rem 0.15rem;
@@ -1966,7 +1953,6 @@ code {
   color: var(--text-muted-softer);
 }
 
-/* Tags row */
 .vjcard__tags {
   display: flex;
   flex-wrap: wrap;
@@ -1988,7 +1974,6 @@ code {
   white-space: nowrap;
 }
 
-/* Song pill */
 .vjcard__song {
   margin: 0.1rem 0 0;
   width: 100%;
@@ -2003,7 +1988,6 @@ code {
   padding: 0 0.2rem;
 }
 
-/* Refined badge */
 .vjcard__badge {
   position: absolute;
   top: 6px;
@@ -2013,7 +1997,6 @@ code {
   pointer-events: none;
 }
 
-/* ── Loading dots ─────────────────────────────────────────── */
 .vj-loading {
   display: flex;
   align-items: center;
@@ -2036,7 +2019,6 @@ code {
   40%            { opacity: 1;   transform: scale(1);    }
 }
 
-/* ── Error state ─────────────────────────────────────────── */
 .vj-error {
   text-align: center;
   padding: 2rem 1rem;
@@ -2046,7 +2028,6 @@ code {
   color: var(--text-muted);
 }
 
-/* ── Detail overlay ──────────────────────────────────────── */
 .vjdetail-backdrop {
   position: fixed;
   inset: 0;
@@ -2121,7 +2102,6 @@ code {
   background: var(--fill-interactive-hover);
 }
 
-/* Polaroid in detail */
 .vjdetail__polaroid {
   padding: 10px 10px 6px;
   background: var(--surface-elevated);
@@ -2160,7 +2140,6 @@ code {
   color: var(--text-primary-bold);
 }
 
-/* Meta section */
 .vjdetail__meta {
   width: 100%;
   text-align: center;
@@ -2205,13 +2184,11 @@ code {
   text-align: center;
 }
 
-/* Ticket in detail */
 .vjdetail__ticket {
   width: 100%;
   max-width: 17rem;
 }
 
-/* ── Reduced motion ───────────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
   .vjcard,
   .vjdetail-backdrop,
@@ -2238,9 +2215,6 @@ code {
 }
 
 .vj-week-header {
-  position: sticky;
-  top: 0.75rem;
-  z-index: 3;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -2365,7 +2339,6 @@ code {
   overflow: visible;
 }
 
-/* ── Top row: two polaroids side by side ── */
 .vjempty__top {
   display: flex;
   flex-direction: row;
@@ -2458,7 +2431,6 @@ code {
   box-shadow: var(--shadow-tape-chip);
 }
 
-/* ── Mid: post-it centered ── */
 .vjempty__mid {
   flex: 1;
   display: flex;
@@ -2508,7 +2480,6 @@ code {
   text-align: center;
 }
 
-/* ── Bottom: pol-3 + copy side by side ── */
 .vjempty__bottom {
   display: flex;
   flex-direction: column;
@@ -2561,7 +2532,6 @@ code {
 }
 .vjempty__cta:hover { border-color: var(--border-strong); }
 
-/* ── Stars ── */
 .vjempty__star {
   position: absolute;
   z-index: 7;

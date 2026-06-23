@@ -3,7 +3,6 @@ import type { MoodResponse } from '@vibemosphere/shared';
 import { Divider } from '../components/Divider';
 import { JournalFooter } from '../components/JournalFooter';
 
-/** Quita rótulos meta que a veces devuelve el modelo (p. ej. secciones entre paréntesis). */
 function stripAiMetaLabels(text: string) {
   return text
     .replace(/\s*\(Philosophical observation\)\s*/gi, ' ')

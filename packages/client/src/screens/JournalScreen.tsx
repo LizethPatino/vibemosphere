@@ -9,8 +9,6 @@ import {
 } from 'react';
 import { createPortal } from 'react-dom';
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
 type JournalEntry = {
   id: string;
   created_at: string;
@@ -38,8 +36,6 @@ type Props = {
   musicTexture: string;
   onBack: () => void;
 };
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function getSessionId(): string {
   let sessionId = localStorage.getItem('vibe_session_id');
@@ -212,8 +208,6 @@ function groupEntriesForJournal(entries: JournalEntry[]): JournalGroup[] {
     });
 }
 
-// ─── Polaroid card ────────────────────────────────────────────────────────────
-
 const PolaroidCard = memo(function PolaroidCard({
   entry,
   index,
@@ -226,9 +220,8 @@ const PolaroidCard = memo(function PolaroidCard({
   const { short, weekday } = formatEntryDate(entry.created_at);
   const { title: songTitle } = parseMusic(entry.music);
 
-  // Slight random rotation for handmade feel — seeded by id so stable
   const seed = entry.id.charCodeAt(0) + entry.id.charCodeAt(1);
-  const rotate = ((seed % 7) - 3) * 0.6; // –1.8 to +1.8 deg
+  const rotate = ((seed % 7) - 3) * 0.6;
 
   const displayTitle = entry.own_title || entry.vibe_title;
 
@@ -244,10 +237,8 @@ const PolaroidCard = memo(function PolaroidCard({
       onClick={() => onEntryClick(entry)}
       aria-label={`Open entry: ${displayTitle}`}
     >
-      {/* Washi tape strip */}
       <span className="vjcard__tape" aria-hidden="true" />
 
-      {/* Polaroid frame */}
       <div className="vjcard__photo-wrap">
         <img
           src={entry.image_url}
@@ -257,7 +248,6 @@ const PolaroidCard = memo(function PolaroidCard({
         />
       </div>
 
-      {/* Chin strip */}
       <div className="vjcard__chin">
         <p className="vjcard__title">{displayTitle}</p>
         <p className="vjcard__date">
@@ -266,7 +256,6 @@ const PolaroidCard = memo(function PolaroidCard({
         </p>
       </div>
 
-      {/* Mood tags row */}
       <div className="vjcard__tags" aria-label="Mood tags">
         {entry.mood_tags.slice(0, 3).map((tag) => (
           <span key={tag} className="vjcard__tag">
@@ -275,10 +264,8 @@ const PolaroidCard = memo(function PolaroidCard({
         ))}
       </div>
 
-      {/* Song pill */}
       {songTitle && <p className="vjcard__song">♪ {songTitle}</p>}
 
-      {/* Refined badge */}
       {entry.feedback_type === 'refined' && (
         <span className="vjcard__badge" title="Vibe was refined">
           ✦
@@ -352,8 +339,6 @@ const WeekSection = memo(function WeekSection({
     </div>
   );
 });
-
-// ─── Empty state ──────────────────────────────────────────────────────────────
 
 function EmptyState({ onBack }: { onBack: () => void }) {
   return (
@@ -592,8 +577,6 @@ const JournalEntryList = memo(function JournalEntryList({
   );
 });
 
-// ─── Detail overlay ───────────────────────────────────────────────────────────
-
 function EntryDetail({
   entry,
   onClose,
@@ -674,8 +657,6 @@ function EntryDetail({
   );
 }
 
-// ─── Main screen ──────────────────────────────────────────────────────────────
-
 export function JournalScreen({ nightTexture, musicTexture, onBack }: Props) {
   const [entries, setEntries] = useState<JournalEntry[]>([]);
   const [loading, setLoading] = useState(true);
@@ -683,7 +664,6 @@ export function JournalScreen({ nightTexture, musicTexture, onBack }: Props) {
   const [activeTag, setActiveTag] = useState<string | null>(null);
   const [expandedDetail, setExpandedDetail] = useState<JournalEntry | null>(null);
 
-  // Fetch entries
   useEffect(() => {
     const sessionId = getSessionId();
     fetch('http://localhost:3001/api/entries', {
@@ -701,7 +681,6 @@ export function JournalScreen({ nightTexture, musicTexture, onBack }: Props) {
       });
   }, []);
 
-  // All unique mood tags across entries
   const allTags = Array.from(new Set(entries.flatMap((e) => e.mood_tags))).sort();
 
   const filtered = activeTag ? entries.filter((e) => e.mood_tags.includes(activeTag)) : entries;
@@ -726,17 +705,14 @@ export function JournalScreen({ nightTexture, musicTexture, onBack }: Props) {
     <>
       <div className="journal-shell">
         <div className="journal-page journal-page--result journal-page--vj">
-          {/* Decorative textures */}
           <img className="night-scrap-paper" src={nightTexture} alt="" aria-hidden="true" />
           <img className="music-scrap-paper" src={musicTexture} alt="" aria-hidden="true" />
 
-          {/* Date header */}
           <div className="journal-date-header" aria-hidden="true">
             <span className="journal-date-header__dmy">{today}</span>
             <span className="journal-date-header__weekday">{weekday}</span>
           </div>
 
-          {/* Page heading */}
           <header className="vj-header">
             <h1 className="journal-title vj-title">vibe journal</h1>
             {entries.length > 0 && (
@@ -747,7 +723,6 @@ export function JournalScreen({ nightTexture, musicTexture, onBack }: Props) {
             )}
           </header>
 
-          {/* Mood tag filter */}
           {allTags.length > 0 && (
             <div className="vj-filters" role="group" aria-label="Filter by mood">
               <button
@@ -770,7 +745,6 @@ export function JournalScreen({ nightTexture, musicTexture, onBack }: Props) {
             </div>
           )}
 
-          {/* Content */}
           <main className="vj-main">
             <JournalEntryList
               loading={loading}
@@ -782,7 +756,6 @@ export function JournalScreen({ nightTexture, musicTexture, onBack }: Props) {
             />
           </main>
 
-          {/* Footer */}
           {entries.length > 0 && (
             <footer className="journal-footer">
               <span className="journal-footer__line" />
@@ -795,7 +768,6 @@ export function JournalScreen({ nightTexture, musicTexture, onBack }: Props) {
         </div>
       </div>
 
-      {/* Detail overlay */}
       {expandedDetail && (
         <EntryDetail entry={expandedDetail} onClose={handleCloseDetail} />
       )}
