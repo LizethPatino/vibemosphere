@@ -448,21 +448,27 @@ const JournalEntryList = memo(function JournalEntryList({
   loading,
   error,
   entries,
+  groups,
+  activeGroupIndex,
   activeTag,
   onBack,
   onClearFilter,
+  onPrevWeek,
+  onNextWeek,
   onEntryClick,
 }: {
   loading: boolean;
   error: boolean;
   entries: JournalEntry[];
+  groups: JournalGroup[];
+  activeGroupIndex: number;
   activeTag: string | null;
   onBack: () => void;
   onClearFilter: () => void;
+  onPrevWeek: () => void;
+  onNextWeek: () => void;
   onEntryClick: (entry: JournalEntry) => void;
 }) {
-  const groups = useMemo(() => groupEntriesForJournal(entries), [entries]);
-  const [activeGroupIndex, setActiveGroupIndex] = useState(0);
   const [insightByGroup, setInsightByGroup] = useState<
     Record<string, { entrySignature: string; insight: string }>
   >({});
@@ -477,12 +483,6 @@ const JournalEntryList = memo(function JournalEntryList({
     if (!activeTag) return activeGroup.entries;
     return activeGroup.entries.filter((entry) => entry.mood_tags.includes(activeTag));
   }, [activeGroup, activeTag]);
-
-  useEffect(() => {
-    if (activeGroupIndex >= groups.length) {
-      setActiveGroupIndex(Math.max(0, groups.length - 1));
-    }
-  }, [activeGroupIndex, groups.length]);
 
   useEffect(() => {
     insightByGroupRef.current = insightByGroup;
@@ -558,14 +558,6 @@ const JournalEntryList = memo(function JournalEntryList({
       });
   }, [activeGroup]);
 
-  const handlePrevWeek = useCallback(() => {
-    setActiveGroupIndex((current) => Math.min(groups.length - 1, current + 1));
-  }, [groups.length]);
-
-  const handleNextWeek = useCallback(() => {
-    setActiveGroupIndex((current) => Math.max(0, current - 1));
-  }, []);
-
   if (loading) {
     return (
       <div className="vj-loading" aria-live="polite">
@@ -602,8 +594,8 @@ const JournalEntryList = memo(function JournalEntryList({
         filterActive={Boolean(activeTag)}
         canGoPrev={activeGroupIndex < groups.length - 1}
         canGoNext={activeGroupIndex > 0}
-        onPrevWeek={handlePrevWeek}
-        onNextWeek={handleNextWeek}
+        onPrevWeek={onPrevWeek}
+        onNextWeek={onNextWeek}
         onClearFilter={onClearFilter}
         onEntryClick={onEntryClick}
       />
@@ -696,7 +688,35 @@ export function JournalScreen({ nightTexture, musicTexture, onBack, onVibeMap }:
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [activeTag, setActiveTag] = useState<string | null>(null);
+  const [activeGroupIndex, setActiveGroupIndex] = useState(0);
   const [expandedDetail, setExpandedDetail] = useState<JournalEntry | null>(null);
+
+  const groups = useMemo(() => groupEntriesForJournal(entries), [entries]);
+  const activeGroup = groups[activeGroupIndex] ?? null;
+
+  const weekTags = useMemo(() => {
+    if (!activeGroup) return [];
+    return Array.from(new Set(activeGroup.entries.flatMap((entry) => entry.mood_tags))).sort();
+  }, [activeGroup]);
+
+  const filteredWeekEntries = useMemo(() => {
+    if (!activeGroup) return [];
+    if (!activeTag) return activeGroup.entries;
+    return activeGroup.entries.filter((entry) => entry.mood_tags.includes(activeTag));
+  }, [activeGroup, activeTag]);
+
+  useEffect(() => {
+    if (activeGroupIndex >= groups.length) {
+      setActiveGroupIndex(Math.max(0, groups.length - 1));
+    }
+  }, [activeGroupIndex, groups.length]);
+
+  useEffect(() => {
+    if (!activeTag) return;
+    if (!weekTags.includes(activeTag)) {
+      setActiveTag(null);
+    }
+  }, [activeGroupIndex, activeTag, weekTags]);
 
   useEffect(() => {
     const sessionId = getSessionId();
@@ -715,7 +735,21 @@ export function JournalScreen({ nightTexture, musicTexture, onBack, onVibeMap }:
       });
   }, []);
 
-  const allTags = Array.from(new Set(entries.flatMap((e) => e.mood_tags))).sort();
+  const handlePrevWeek = useCallback(() => {
+    setActiveGroupIndex((current) => Math.min(groups.length - 1, current + 1));
+  }, [groups.length]);
+
+  const handleNextWeek = useCallback(() => {
+    setActiveGroupIndex((current) => Math.max(0, current - 1));
+  }, []);
+
+  const illustrationCount = filteredWeekEntries.length;
+  const illustrationLabel = illustrationCount === 1 ? 'illustration' : 'illustrations';
+  const counterText = activeTag
+    ? `${illustrationCount} ${illustrationLabel} · ${activeTag}`
+    : `${illustrationCount} ${illustrationLabel} · ${weekTags.length} ${
+        weekTags.length === 1 ? 'mood' : 'moods'
+      }`;
 
   const today = new Intl.DateTimeFormat('en-GB', {
     day: '2-digit',
@@ -751,15 +785,12 @@ export function JournalScreen({ nightTexture, musicTexture, onBack, onVibeMap }:
 
           <header className="vj-header">
             <h1 className="journal-title vj-title">vibe journal</h1>
-            {entries.length > 0 && (
-              <p className="vj-subtitle">
-                {entries.length} {entries.length === 1 ? 'illustration' : 'illustrations'} · {allTags.length}{' '}
-                moods
-              </p>
+            {activeGroup && (
+              <p className="vj-subtitle">{counterText}</p>
             )}
           </header>
 
-          {allTags.length > 0 && (
+          {weekTags.length > 0 && (
             <div className="vj-filters" role="group" aria-label="Filter by mood">
               <button
                 type="button"
@@ -768,7 +799,7 @@ export function JournalScreen({ nightTexture, musicTexture, onBack, onVibeMap }:
               >
                 all
               </button>
-              {allTags.map((tag) => (
+              {weekTags.map((tag) => (
                 <button
                   key={tag}
                   type="button"
@@ -786,9 +817,13 @@ export function JournalScreen({ nightTexture, musicTexture, onBack, onVibeMap }:
               loading={loading}
               error={error}
               entries={entries}
+              groups={groups}
+              activeGroupIndex={activeGroupIndex}
               activeTag={activeTag}
               onBack={onBack}
               onClearFilter={handleClearFilter}
+              onPrevWeek={handlePrevWeek}
+              onNextWeek={handleNextWeek}
               onEntryClick={handleEntryClick}
             />
           </main>
