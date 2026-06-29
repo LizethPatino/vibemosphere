@@ -35,6 +35,7 @@ type Props = {
   nightTexture: string;
   musicTexture: string;
   onBack: () => void;
+  onVibeMap: () => void;
 };
 
 function getSessionId(): string {
@@ -276,13 +277,18 @@ const PolaroidCard = memo(function PolaroidCard({
 });
 
 const WEEK_PREVIEW = 4;
-const JOURNAL_SCROLL_BATCH = 1;
 
 const WeekSection = memo(function WeekSection({
   label,
   entries,
   insight,
   insightLoading,
+  filterActive,
+  canGoPrev,
+  canGoNext,
+  onPrevWeek,
+  onNextWeek,
+  onClearFilter,
   onEntryClick,
 }: {
   label: string;
@@ -290,40 +296,90 @@ const WeekSection = memo(function WeekSection({
   entries: JournalEntry[];
   insight: string | null;
   insightLoading: boolean;
+  filterActive: boolean;
+  canGoPrev: boolean;
+  canGoNext: boolean;
+  onPrevWeek: () => void;
+  onNextWeek: () => void;
+  onClearFilter: () => void;
   onEntryClick: (entry: JournalEntry) => void;
 }) {
   const [expanded, setExpanded] = useState(false);
   const visible = expanded ? entries : entries.slice(0, WEEK_PREVIEW);
   const hidden = entries.length - WEEK_PREVIEW;
+  const filterEmpty = filterActive && entries.length === 0;
 
   return (
     <div className="vj-week-section">
-      <div className="vj-week-header">
-        <span className="vj-week-line" />
-        <span className="vj-week-label">{label}</span>
-        {insight && (
-          <span className="vj-week-insight">{insight} ✦</span>
+      <nav className="vj-week-nav" aria-label="Week navigation">
+        <button
+          type="button"
+          className="journal-footer__link"
+          onClick={onPrevWeek}
+          disabled={!canGoPrev}
+          aria-label="Older week"
+        >
+          ←
+        </button>
+        <span className="journal-footer__label">{label}</span>
+        <button
+          type="button"
+          className="journal-footer__link"
+          onClick={onNextWeek}
+          disabled={!canGoNext}
+          aria-label="Newer week"
+        >
+          →
+        </button>
+      </nav>
+
+      {!filterEmpty && (insight || insightLoading) && (
+        <div className="vj-week-header">
+          <span className="vj-week-line" />
+          {insight && (
+            <span className="vj-week-insight">{insight} ✦</span>
+          )}
+          {insightLoading && (
+            <span className="vj-week-insight vj-week-insight--loading">
+              reading this section…
+            </span>
+          )}
+          <span className="vj-week-line" />
+        </div>
+      )}
+
+      <div className={`vj-week-body${filterEmpty ? ' vj-week-body--empty' : ''}`}>
+        {filterEmpty ? (
+          <div className="vj-filter-empty">
+            <div className="vjempty__postit">
+              <div className="vjempty__postit-tape" />
+              <p className="vjempty__postit-q">
+                this feeling didn&apos;t make it to the page this week
+              </p>
+              <button
+                type="button"
+                className="vj-filter-empty__action"
+                onClick={onClearFilter}
+              >
+                · try another week ←
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div className="vj-grid">
+            {visible.map((entry, i) => (
+              <PolaroidCard
+                key={entry.id}
+                entry={entry}
+                index={i}
+                onEntryClick={onEntryClick}
+              />
+            ))}
+          </div>
         )}
-        {insightLoading && (
-          <span className="vj-week-insight vj-week-insight--loading">
-            reading this section…
-          </span>
-        )}
-        <span className="vj-week-line" />
       </div>
 
-      <div className="vj-grid">
-        {visible.map((entry, i) => (
-          <PolaroidCard
-            key={entry.id}
-            entry={entry}
-            index={i}
-            onEntryClick={onEntryClick}
-          />
-        ))}
-      </div>
-
-      {!expanded && hidden > 0 && (
+      {!filterEmpty && !expanded && hidden > 0 && (
         <div className="vj-expand-row">
           <span className="vj-expand-line" />
           <button
@@ -391,43 +447,42 @@ function EmptyState({ onBack }: { onBack: () => void }) {
 const JournalEntryList = memo(function JournalEntryList({
   loading,
   error,
-  filtered,
+  entries,
   activeTag,
   onBack,
+  onClearFilter,
   onEntryClick,
 }: {
   loading: boolean;
   error: boolean;
-  filtered: JournalEntry[];
+  entries: JournalEntry[];
   activeTag: string | null;
   onBack: () => void;
+  onClearFilter: () => void;
   onEntryClick: (entry: JournalEntry) => void;
 }) {
-  const groups = useMemo(() => groupEntriesForJournal(filtered), [filtered]);
-  const currentMonthKey = getMonthKey(new Date());
-  const initialVisibleGroupCount = useMemo(() => {
-    const firstOlderMonthIndex = groups.findIndex(
-      (group) => group.kind === 'month' && group.monthKey !== currentMonthKey
-    );
-    return firstOlderMonthIndex === -1 ? groups.length : Math.max(1, firstOlderMonthIndex);
-  }, [currentMonthKey, groups]);
-  const [visibleGroupCount, setVisibleGroupCount] = useState(initialVisibleGroupCount);
+  const groups = useMemo(() => groupEntriesForJournal(entries), [entries]);
+  const [activeGroupIndex, setActiveGroupIndex] = useState(0);
   const [insightByGroup, setInsightByGroup] = useState<
     Record<string, { entrySignature: string; insight: string }>
   >({});
   const [insightLoadingByGroup, setInsightLoadingByGroup] = useState<Record<string, boolean>>({});
-  const loadMoreRef = useRef<HTMLDivElement | null>(null);
   const attemptedInsightSignaturesRef = useRef<Record<string, string>>({});
   const insightByGroupRef = useRef(insightByGroup);
   const insightLoadingByGroupRef = useRef(insightLoadingByGroup);
-  const visibleGroups = useMemo(
-    () => groups.slice(0, visibleGroupCount),
-    [groups, visibleGroupCount]
-  );
+
+  const activeGroup = groups[activeGroupIndex] ?? null;
+  const displayEntries = useMemo(() => {
+    if (!activeGroup) return [];
+    if (!activeTag) return activeGroup.entries;
+    return activeGroup.entries.filter((entry) => entry.mood_tags.includes(activeTag));
+  }, [activeGroup, activeTag]);
 
   useEffect(() => {
-    setVisibleGroupCount(initialVisibleGroupCount);
-  }, [initialVisibleGroupCount]);
+    if (activeGroupIndex >= groups.length) {
+      setActiveGroupIndex(Math.max(0, groups.length - 1));
+    }
+  }, [activeGroupIndex, groups.length]);
 
   useEffect(() => {
     insightByGroupRef.current = insightByGroup;
@@ -438,89 +493,78 @@ const JournalEntryList = memo(function JournalEntryList({
   }, [insightLoadingByGroup]);
 
   useEffect(() => {
-    const node = loadMoreRef.current;
-    if (!node || visibleGroupCount >= groups.length) return;
+    if (!activeGroup || activeGroup.entries.length < 3) return;
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (!entries[0]?.isIntersecting) return;
-        setVisibleGroupCount((current) =>
-          current >= groups.length ? current : Math.min(groups.length, current + JOURNAL_SCROLL_BATCH)
-        );
-      },
-      { rootMargin: '240px 0px' }
-    );
-
-    observer.observe(node);
-    return () => observer.disconnect();
-  }, [groups.length, visibleGroupCount]);
-
-  useEffect(() => {
     const sessionId = getSessionId();
-    visibleGroups.forEach((group) => {
-      if (group.entries.length < 3) return;
+    const group = activeGroup;
+    const entrySignature = buildGroupEntrySignature(group.entries.map((entry) => entry.id));
+    const existing = insightByGroupRef.current[group.weekKey];
+    if (existing?.entrySignature === entrySignature) return;
+    if (insightLoadingByGroupRef.current[group.weekKey]) return;
 
-      const entrySignature = buildGroupEntrySignature(group.entries.map((entry) => entry.id));
-      const existing = insightByGroupRef.current[group.weekKey];
-      if (existing?.entrySignature === entrySignature) return;
-      if (insightLoadingByGroupRef.current[group.weekKey]) return;
+    const cacheKey = buildInsightCacheKey(sessionId, group.weekKey);
+    const cached = readInsightCache(cacheKey);
+    if (cached?.entrySignature === entrySignature) {
+      insightByGroupRef.current = { ...insightByGroupRef.current, [group.weekKey]: cached };
+      setInsightByGroup((current) => ({ ...current, [group.weekKey]: cached }));
+      return;
+    }
 
-      const cacheKey = buildInsightCacheKey(sessionId, group.weekKey);
-      const cached = readInsightCache(cacheKey);
-      if (cached?.entrySignature === entrySignature) {
-        insightByGroupRef.current = { ...insightByGroupRef.current, [group.weekKey]: cached };
-        setInsightByGroup((current) => ({ ...current, [group.weekKey]: cached }));
-        return;
-      }
+    if (attemptedInsightSignaturesRef.current[group.weekKey] === entrySignature) {
+      return;
+    }
 
-      if (attemptedInsightSignaturesRef.current[group.weekKey] === entrySignature) {
-        return;
-      }
+    attemptedInsightSignaturesRef.current[group.weekKey] = entrySignature;
+    insightLoadingByGroupRef.current = {
+      ...insightLoadingByGroupRef.current,
+      [group.weekKey]: true,
+    };
+    setInsightLoadingByGroup((current) => ({ ...current, [group.weekKey]: true }));
 
-      attemptedInsightSignaturesRef.current[group.weekKey] = entrySignature;
-      insightLoadingByGroupRef.current = {
-        ...insightLoadingByGroupRef.current,
-        [group.weekKey]: true,
-      };
-      setInsightLoadingByGroup((current) => ({ ...current, [group.weekKey]: true }));
+    fetch('http://localhost:3001/api/insight', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-session-id': sessionId,
+      },
+      body: JSON.stringify({
+        moodTags: group.entries.flatMap((entry) => entry.mood_tags),
+        periodLabel: group.label,
+        periodKind: group.kind,
+      }),
+    })
+      .then((response) => response.json())
+      .then((data: { insight?: string }) => {
+        const nextInsight = data.insight?.trim();
+        if (!nextInsight) return;
 
-      fetch('http://localhost:3001/api/insight', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-session-id': sessionId,
-        },
-        body: JSON.stringify({
-          moodTags: group.entries.flatMap((entry) => entry.mood_tags),
-          periodLabel: group.label,
-          periodKind: group.kind,
-        }),
+        const nextValue = { entrySignature, insight: nextInsight };
+        insightByGroupRef.current = {
+          ...insightByGroupRef.current,
+          [group.weekKey]: nextValue,
+        };
+        setInsightByGroup((current) => ({ ...current, [group.weekKey]: nextValue }));
+        writeInsightCache(cacheKey, entrySignature, nextInsight);
       })
-        .then((response) => response.json())
-        .then((data: { insight?: string }) => {
-          const nextInsight = data.insight?.trim();
-          if (!nextInsight) return;
+      .catch(() => {
+        delete attemptedInsightSignaturesRef.current[group.weekKey];
+      })
+      .finally(() => {
+        insightLoadingByGroupRef.current = {
+          ...insightLoadingByGroupRef.current,
+          [group.weekKey]: false,
+        };
+        setInsightLoadingByGroup((current) => ({ ...current, [group.weekKey]: false }));
+      });
+  }, [activeGroup]);
 
-          const nextValue = { entrySignature, insight: nextInsight };
-          insightByGroupRef.current = {
-            ...insightByGroupRef.current,
-            [group.weekKey]: nextValue,
-          };
-          setInsightByGroup((current) => ({ ...current, [group.weekKey]: nextValue }));
-          writeInsightCache(cacheKey, entrySignature, nextInsight);
-        })
-        .catch(() => {
-          delete attemptedInsightSignaturesRef.current[group.weekKey];
-        })
-        .finally(() => {
-          insightLoadingByGroupRef.current = {
-            ...insightLoadingByGroupRef.current,
-            [group.weekKey]: false,
-          };
-          setInsightLoadingByGroup((current) => ({ ...current, [group.weekKey]: false }));
-        });
-    });
-  }, [visibleGroups]);
+  const handlePrevWeek = useCallback(() => {
+    setActiveGroupIndex((current) => Math.min(groups.length - 1, current + 1));
+  }, [groups.length]);
+
+  const handleNextWeek = useCallback(() => {
+    setActiveGroupIndex((current) => Math.max(0, current - 1));
+  }, []);
 
   if (loading) {
     return (
@@ -538,41 +582,31 @@ const JournalEntryList = memo(function JournalEntryList({
     );
   }
 
-  if (filtered.length === 0) {
+  if (entries.length === 0) {
     return <EmptyState onBack={onBack} />;
   }
 
-  if (activeTag) {
-    return (
-      <div className="vj-grid">
-        {filtered.map((entry, i) => (
-          <PolaroidCard
-            key={entry.id}
-            entry={entry}
-            index={i}
-            onEntryClick={onEntryClick}
-          />
-        ))}
-      </div>
-    );
+  if (!activeGroup) {
+    return null;
   }
 
   return (
     <div className="vj-weeks">
-      {visibleGroups.map((group) => (
-        <WeekSection
-          key={group.weekKey}
-          label={group.label}
-          weekKey={group.weekKey}
-          entries={group.entries}
-          insight={insightByGroup[group.weekKey]?.insight ?? null}
-          insightLoading={Boolean(insightLoadingByGroup[group.weekKey])}
-          onEntryClick={onEntryClick}
-        />
-      ))}
-      {visibleGroupCount < groups.length && (
-        <div ref={loadMoreRef} className="vj-load-more-sentinel" aria-hidden="true" />
-      )}
+      <WeekSection
+        key={activeGroup.weekKey}
+        label={activeGroup.label}
+        weekKey={activeGroup.weekKey}
+        entries={displayEntries}
+        insight={insightByGroup[activeGroup.weekKey]?.insight ?? null}
+        insightLoading={Boolean(insightLoadingByGroup[activeGroup.weekKey])}
+        filterActive={Boolean(activeTag)}
+        canGoPrev={activeGroupIndex < groups.length - 1}
+        canGoNext={activeGroupIndex > 0}
+        onPrevWeek={handlePrevWeek}
+        onNextWeek={handleNextWeek}
+        onClearFilter={onClearFilter}
+        onEntryClick={onEntryClick}
+      />
     </div>
   );
 });
@@ -657,7 +691,7 @@ function EntryDetail({
   );
 }
 
-export function JournalScreen({ nightTexture, musicTexture, onBack }: Props) {
+export function JournalScreen({ nightTexture, musicTexture, onBack, onVibeMap }: Props) {
   const [entries, setEntries] = useState<JournalEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -683,8 +717,6 @@ export function JournalScreen({ nightTexture, musicTexture, onBack }: Props) {
 
   const allTags = Array.from(new Set(entries.flatMap((e) => e.mood_tags))).sort();
 
-  const filtered = activeTag ? entries.filter((e) => e.mood_tags.includes(activeTag)) : entries;
-
   const today = new Intl.DateTimeFormat('en-GB', {
     day: '2-digit',
     month: '2-digit',
@@ -699,6 +731,10 @@ export function JournalScreen({ nightTexture, musicTexture, onBack }: Props) {
 
   const handleCloseDetail = useCallback(() => {
     setExpandedDetail(null);
+  }, []);
+
+  const handleClearFilter = useCallback(() => {
+    setActiveTag(null);
   }, []);
 
   return (
@@ -749,9 +785,10 @@ export function JournalScreen({ nightTexture, musicTexture, onBack }: Props) {
             <JournalEntryList
               loading={loading}
               error={error}
-              filtered={filtered}
+              entries={entries}
               activeTag={activeTag}
               onBack={onBack}
+              onClearFilter={handleClearFilter}
               onEntryClick={handleEntryClick}
             />
           </main>
@@ -761,6 +798,10 @@ export function JournalScreen({ nightTexture, musicTexture, onBack }: Props) {
               <span className="journal-footer__line" />
               <button type="button" className="journal-footer__link" onClick={onBack}>
                 ✦ new illustration ✦
+              </button>
+              <span className="journal-footer__sep">·</span>
+              <button type="button" className="journal-footer__link" onClick={onVibeMap}>
+                ✧ my vibe map ✧
               </button>
               <span className="journal-footer__line" />
             </footer>

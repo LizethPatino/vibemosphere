@@ -8,7 +8,7 @@
   --surface-page: rgb(var(--vibe-paper-50));
   --surface-elevated: rgb(var(--vibe-paper-0));
   --surface-inset: rgb(var(--vibe-paper-100));
-  --surface-emphasis: rgb(var(--vibe-postit-400));
+  --surface-emphasis: rgb(var(--vibe-surface-wash-cream) / 0.95);
   --surface-code: rgb(var(--vibe-paper-200));
   --surface-chip: rgb(255 250 245 / 0.85);
   --surface-glass: rgb(255 252 248 / 0.92);
@@ -157,7 +157,7 @@
   --surface-divider-soft: rgb(var(--vibe-divider-warm) / 0.4);
   --surface-count: rgb(var(--vibe-ink-scrim) / 0.1);
   --surface-loading: rgb(var(--vibe-ink-loading) / 0.45);
-  --surface-postit-fold: rgb(var(--vibe-postit-fold));
+  --surface-postit-fold: rgb(var(--vibe-clay-600) / 0.45);
 
   --border-feedback: rgb(var(--vibe-border-feedback) / 0.75);
   --border-feedback-soft: rgb(var(--vibe-border-feedback-soft) / 0.65);

@@ -401,6 +401,7 @@ function App() {
         nightTexture={nightTexture}
         musicTexture={musicTexture}
         onBack={() => setScreen('upload')}
+        onVibeMap={() => {}}
       />
     );
   }

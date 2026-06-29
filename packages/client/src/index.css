@@ -1741,8 +1741,31 @@ code {
   color: var(--text-chip-label);
 }
 
+.journal-footer__link:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+.journal-footer__label {
+  font-family: var(--font-ui);
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  color: var(--text-footer);
+  white-space: nowrap;
+  text-transform: capitalize;
+}
+
+.journal-footer__sep {
+  color: var(--text-muted-faint);
+  font-size: 0.875rem;
+  line-height: 1;
+  user-select: none;
+}
 
 .journal-page--vj {
+  display: flex;
+  flex-direction: column;
   padding-bottom: 2.5rem;
 }
 
@@ -1819,7 +1842,7 @@ code {
   position: relative;
   z-index: 3;
   width: 100%;
-  min-height: 12rem;
+  min-height: 24rem;
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -1830,6 +1853,66 @@ code {
   grid-template-columns: repeat(2, 1fr);
   gap: 1.1rem 0.85rem;
   padding: 0.25rem 0.5rem 1rem;
+  align-items: start;
+}
+
+.vj-week-body {
+  min-height: 22rem;
+}
+
+.vj-main:has(.vj-week-body--empty),
+.vj-weeks:has(.vj-week-body--empty),
+.vj-week-section:has(.vj-week-body--empty) {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.vj-week-body--empty {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 0;
+}
+
+.vj-filter-empty {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 1rem;
+}
+
+.vj-filter-empty .vjempty__postit {
+  flex-direction: column;
+  gap: 0.65rem;
+  width: auto;
+  min-width: 152px;
+  max-width: 14rem;
+  padding: 28px 22px 24px;
+  transform: rotate(1deg);
+}
+
+.vj-filter-empty__action {
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: none;
+  appearance: none;
+  cursor: pointer;
+  font-family: var(--font-ui);
+  font-size: 0.68rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  color: var(--text-muted-whisper);
+  transition: color 0.2s ease;
+}
+
+.vj-filter-empty__action:hover {
+  color: var(--text-muted-strong);
 }
 
 .vjcard {
@@ -2214,6 +2297,17 @@ code {
   animation: vjSectionFadeIn 280ms ease both;
 }
 
+.vj-week-nav {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-bottom: 12px;
+  padding: 0.35rem 0.5rem;
+}
+
 .vj-week-header {
   display: flex;
   align-items: center;
@@ -2444,7 +2538,7 @@ code {
   width: 152px;
   min-height: 130px;
   padding: 22px 16px 18px;
-  background: var(--surface-emphasis);
+  background-color: var(--surface-emphasis);
   border-radius: 1px;
   transform: rotate(2deg);
   box-shadow: var(--shadow-postit);
