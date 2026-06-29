@@ -1,4 +1,4 @@
-import { useState, type ChangeEvent } from 'react';
+import { lazy, Suspense, useState, type ChangeEvent } from 'react';
 import type { MoodResponse } from '@vibemosphere/shared';
 import musicTexture from './assets/music-texture.png';
 import nightTexture from './assets/night-texture.png';
@@ -7,6 +7,9 @@ import { UploadScreen } from './screens/UploadScreen';
 import { ResultScreen } from './screens/ResultScreen';
 import { FeedbackScreen } from './screens/FeedbackScreen';
 import { JournalScreen } from './screens/JournalScreen';
+const VibeMapScreen = lazy(() =>
+  import('./screens/VibeMapScreen').then((m) => ({ default: m.VibeMapScreen }))
+);
 
 const ANALYZE_ENDPOINT = 'http://localhost:3001/api/analyze';
 const TRANSIENT_RETRY_DELAYS_MS = [1000, 3000] as const;
@@ -170,7 +173,7 @@ function getSessionId(): string {
 }
 
 function App() {
-  const [screen, setScreen] = useState<'upload' | 'result' | 'feedback' | 'journal'>('upload');
+  const [screen, setScreen] = useState<'upload' | 'result' | 'feedback' | 'journal' | 'vibemap'>('upload');
   const [image, setImage] = useState<string | null>(null);
   const [result, setResult] = useState<MoodResponse | null>(null);
   const [loading, setLoading] = useState(false);
@@ -401,8 +404,20 @@ function App() {
         nightTexture={nightTexture}
         musicTexture={musicTexture}
         onBack={() => setScreen('upload')}
-        onVibeMap={() => {}}
+        onVibeMap={() => setScreen('vibemap')}
       />
+    );
+  }
+
+  if (screen === 'vibemap') {
+    return (
+      <Suspense fallback={null}>
+        <VibeMapScreen
+          nightTexture={nightTexture}
+          musicTexture={musicTexture}
+          onBack={() => setScreen('journal')}
+        />
+      </Suspense>
     );
   }
 

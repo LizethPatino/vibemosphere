@@ -15,5 +15,5 @@ export type MoodResponse = {
   };
 };
 
-export { MOOD_TAGS, sanitizeMoodTags } from './moods';
+export { MOOD_TAGS, MOOD_COORDINATES, sanitizeMoodTags, getEntryCoordinates } from './moods';
 export type { MoodTag } from './moods';

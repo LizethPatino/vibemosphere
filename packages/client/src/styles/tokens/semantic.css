@@ -159,6 +159,16 @@
   --surface-loading: rgb(var(--vibe-ink-loading) / 0.45);
   --surface-postit-fold: rgb(var(--vibe-clay-600) / 0.45);
 
+  --surface-map-restless: rgb(var(--vibe-surface-wash-peach) / 0.5);
+  --surface-map-bright: rgb(var(--vibe-clay-300) / 0.55);
+  --surface-map-tired: rgb(var(--vibe-surface-wash-panel) / 0.75);
+  --surface-map-gentle: rgb(var(--vibe-tape-green-soft) / 0.4);
+
+  --dot-map-restless: rgb(var(--vibe-warning) / 0.82);
+  --dot-map-bright: rgb(var(--vibe-clay-700) / 0.82);
+  --dot-map-tired: rgb(var(--vibe-ink-500) / 0.78);
+  --dot-map-gentle: rgb(var(--vibe-tape-shadow-mid) / 0.88);
+
   --border-feedback: rgb(var(--vibe-border-feedback) / 0.75);
   --border-feedback-soft: rgb(var(--vibe-border-feedback-soft) / 0.65);
   --border-feedback-quiet: rgb(var(--vibe-border-feedback-quiet) / 0.65);
