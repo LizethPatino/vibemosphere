@@ -1,8 +1,9 @@
-import { lazy, Suspense, useState, type ChangeEvent } from 'react';
+import { lazy, Suspense, useEffect, useState, type ChangeEvent } from 'react';
 import type { MoodResponse } from '@vibemosphere/shared';
 import musicTexture from './assets/music-texture.png';
 import nightTexture from './assets/night-texture.png';
 import { validateIllustrationExif } from './illustrationExif';
+import Loading from './components/Loading';
 import { UploadScreen } from './screens/UploadScreen';
 import { ResultScreen } from './screens/ResultScreen';
 import { FeedbackScreen } from './screens/FeedbackScreen';
@@ -174,6 +175,7 @@ function getSessionId(): string {
 
 function App() {
   const [screen, setScreen] = useState<'upload' | 'result' | 'feedback' | 'journal' | 'vibemap'>('upload');
+  const [bootLoading, setBootLoading] = useState(true);
   const [image, setImage] = useState<string | null>(null);
   const [result, setResult] = useState<MoodResponse | null>(null);
   const [loading, setLoading] = useState(false);
@@ -181,6 +183,24 @@ function App() {
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [analyzeError, setAnalyzeError] = useState<AnalyzeErrorState | null>(null);
   const [manualOnly, setManualOnly] = useState(false);
+
+  useEffect(() => {
+    const sessionId = getSessionId();
+    fetch('http://localhost:3001/api/entries', {
+      headers: { 'x-session-id': sessionId },
+    })
+      .then((r) => r.json())
+      .then((data: { entries?: unknown[] } | unknown[]) => {
+        const list = Array.isArray(data) ? data : data.entries ?? [];
+        setScreen(Array.isArray(list) && list.length > 0 ? 'journal' : 'upload');
+      })
+      .catch(() => {
+        setScreen('upload');
+      })
+      .finally(() => {
+        setBootLoading(false);
+      });
+  }, []);
 
   const handleImageChange = async (e: ChangeEvent<HTMLInputElement>) => {
     const input = e.target;
@@ -361,6 +381,16 @@ function App() {
   };
 
   const { iso, dmy, weekday } = formatJournalDate(new Date());
+
+  if (bootLoading) {
+    return (
+      <div className="journal-shell">
+        <div className="journal-page journal-page--vj">
+          <Loading />
+        </div>
+      </div>
+    );
+  }
 
   if (screen === 'result' && image && result) {
     return (
