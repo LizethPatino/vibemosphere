@@ -24,7 +24,6 @@ type Props = {
   musicTexture: string;
   image: string;
   result: MoodResponse;
-  onRestart: () => void;
   onSave: (
     feedbackType: 'yes' | 'refined' | 'own',
     note: string,
@@ -45,7 +44,6 @@ export function FeedbackScreen({
   musicTexture,
   image,
   result,
-  onRestart,
   onSave,
   onRefined,
   refinementInput,
@@ -250,7 +248,7 @@ export function FeedbackScreen({
               );
               setSaving(false);
               setSaved(true);
-              setTimeout(() => onRestart(), 1500);
+              setTimeout(() => onGoToJournal(), 1500);
             }}
           >
             {saving ? 'Saving…' : saved ? 'Saved ✦' : 'Save to my vibe journal'}

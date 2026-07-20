@@ -370,14 +370,18 @@ function App() {
     setScreen('result');
   };
 
-  const handleRestart = () => {
-    setScreen('upload');
+  const clearIllustrationState = () => {
     setImage(null);
     setResult(null);
     setRefinementInput('');
     setUploadError(null);
     setAnalyzeError(null);
     setManualOnly(false);
+  };
+
+  const handleGoToJournal = () => {
+    clearIllustrationState();
+    setScreen('journal');
   };
 
   const { iso, dmy, weekday } = formatJournalDate(new Date());
@@ -418,12 +422,11 @@ function App() {
         musicTexture={musicTexture}
         image={image}
         result={result}
-        onRestart={handleRestart}
         onSave={saveEntry}
         onRefined={handleRefined}
         refinementInput={refinementInput}
         manualOnly={manualOnly}
-        onGoToJournal={() => setScreen('journal')}
+        onGoToJournal={handleGoToJournal}
       />
     );
   }
